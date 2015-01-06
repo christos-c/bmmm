@@ -17,9 +17,9 @@ public class TagStats {
 		BufferedWriter out = FileUtils.createOut(FileUtils.strip(uFile) + ".confMatrix");
 		String supLine, unsupLine, sTag, uTag, supWordTag, unsupWordTag;
 		String[] supWordTags, unsupWordTags;
-		Map<String, Integer> clustFreq = new HashMap<String, Integer>();
-		Map<String, Integer> tagFreq = new HashMap<String, Integer>();
-		Map<String, Integer> coocMap = new HashMap<String, Integer>();
+		Map<String, Integer> clustFreq = new HashMap<>();
+		Map<String, Integer> tagFreq = new HashMap<>();
+		Map<String, Integer> coocMap = new HashMap<>();
 		while ((supLine=supIn.readLine())!=null){
 			unsupLine=unsupIn.readLine().trim();
 			supWordTags = supLine.split("\\s+");
@@ -81,7 +81,7 @@ public class TagStats {
 		BufferedWriter out = FileUtils.createOut(FileUtils.strip(file) + ".clusters");
 		String line, tag, word;
 		String[] wordTags;
-		Map<String, Map<String, Integer>> clusters = new HashMap<String, Map<String,Integer>>();
+		Map<String, Map<String, Integer>> clusters = new HashMap<>();
 		while ((line=in.readLine())!=null){
 			wordTags = line.split("\\s+");
 			for (String wordTag:wordTags){
@@ -92,7 +92,7 @@ public class TagStats {
 					else clusters.get(tag).put(word,clusters.get(tag).get(word)+1);
 				}
 				else {
-					Map<String, Integer> map = new HashMap<String, Integer>();
+					Map<String, Integer> map = new HashMap<>();
 					map.put(word, 1);
 					clusters.put(tag, map);
 				}
@@ -118,7 +118,7 @@ public class TagStats {
 		BufferedWriter out = FileUtils.createOut(FileUtils.strip(file) + ".tagDist");
 		String line,tag;
 		String[] wordTags;
-		Map<String, Integer> freqMap = new HashMap<String, Integer>();
+		Map<String, Integer> freqMap = new HashMap<>();
 		while ((line=in.readLine())!=null){
 			wordTags = line.split("\\s+");
 			for (String wordTag:wordTags){
@@ -147,7 +147,7 @@ public class TagStats {
 		BufferedWriter out = FileUtils.createOut(FileUtils.strip(uFile) + ".tagMap");
 		String supLine, unsupLine, supWordTag, unsupWordTag, sTag, uTag;
 		String[] supWordTags, unsupWordTags;
-		Map<String, List<String>> tagMap = new HashMap<String, List<String>>();
+		Map<String, List<String>> tagMap = new HashMap<>();
 		while ((supLine=supIn.readLine())!=null){
 			unsupLine=unsupIn.readLine().trim();
 			supWordTags = supLine.split("\\s+");
@@ -161,7 +161,7 @@ public class TagStats {
 					tagMap.get(uTag).add(sTag);
 				}
 				else {
-					List<String> tmp = new ArrayList<String>(1);
+					List<String> tmp = new ArrayList<>(1);
 					tmp.add(sTag);
 					tagMap.put(uTag, tmp);
 				}
@@ -178,7 +178,7 @@ public class TagStats {
 	}
 	
 	private String purity(List<String> list, String prefTag) {
-		List<String> seen = new ArrayList<String>();
+		List<String> seen = new ArrayList<>();
 		int totalTags = list.size();
 		int correctTags = numTags(list,prefTag);
 		int num;
@@ -208,7 +208,7 @@ public class TagStats {
 	}
 	
 	private String findPrefTag(List<String> list) {
-		Map<String, Integer> tmpMap = new HashMap<String, Integer>();
+		Map<String, Integer> tmpMap = new HashMap<>();
 		for (String tag:list){
 			if (tmpMap.containsKey(tag)) {
 				int f = tmpMap.get(tag) +1;

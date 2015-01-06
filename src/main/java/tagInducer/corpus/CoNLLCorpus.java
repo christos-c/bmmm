@@ -50,20 +50,20 @@ public class CoNLLCorpus extends Corpus {
         String line;
         int totalWords = 0;
 
-        List<List<Integer>> corpusSents = new ArrayList<List<Integer>>();
-        List<List<Integer>> corpusTags = new ArrayList<List<Integer>>();
-        List<List<Integer>> corpusDeps = new ArrayList<List<Integer>>();
-        List<List<Integer>> corpusUPos = new ArrayList<List<Integer>>();
+        List<List<Integer>> corpusSents = new ArrayList<>();
+        List<List<Integer>> corpusTags = new ArrayList<>();
+        List<List<Integer>> corpusDeps = new ArrayList<>();
+        List<List<Integer>> corpusUPos = new ArrayList<>();
 
         try {
             BufferedReader in = FileUtils.createIn(file);
             //A list to store the sentence words
-            List<Integer> sentWords = new ArrayList<Integer>();
+            List<Integer> sentWords = new ArrayList<>();
             //A list to store the sentence head dependencies
-            List<Integer> sentDeps = new ArrayList<Integer>();
+            List<Integer> sentDeps = new ArrayList<>();
             //A list to store the sentence fine-grained PoS tags
-            List<Integer> sentTags = new ArrayList<Integer>();
-            List<Integer> sentUPosTags = new ArrayList<Integer>();
+            List<Integer> sentTags = new ArrayList<>();
+            List<Integer> sentUPosTags = new ArrayList<>();
             while ((line = in.readLine())!=null) {
                 //Read through each sentence
                 if (!line.isEmpty()) {

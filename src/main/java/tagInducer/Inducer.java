@@ -79,17 +79,19 @@ public class Inducer{
 			dName += "c"+numClusters;
 			//Add the run's config
 			for (String type:featureTypes) {
-				if (type.equals("ALIGNS")){
-					dName += "_aligns";
-					for (String lang:o.getAlignLangs()) dName +=lang.toUpperCase();
-				}
-				else if (type.equals("MORPH")) {
-					if (o.getMorphMethod().equalsIgnoreCase("morfessor")) dName += "_morphM";
-					else if (o.getMorphMethod().equalsIgnoreCase("letter")) dName += "_morphL";
-					if (o.isExtendedMorph()) dName+="_extMFeats";
-				}
-				else {
-					dName += "_"+type;
+				switch (type) {
+					case FeatureNames.ALIGNS:
+						dName += "_aligns";
+						for (String lang : o.getAlignLangs()) dName += lang.toUpperCase();
+						break;
+					case FeatureNames.MORPH:
+						if (o.getMorphMethod().equalsIgnoreCase("morfessor")) dName += "_morphM";
+						else if (o.getMorphMethod().equalsIgnoreCase("letter")) dName += "_morphL";
+						if (o.isExtendedMorph()) dName += "_extMFeats";
+						break;
+					default:
+						dName += "_" + type;
+						break;
 				}
 			}
 			dName += "_i"+iters;

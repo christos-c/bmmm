@@ -11,8 +11,8 @@ public class StringCoder {
 	private int counter;
 
 	public StringCoder(){
-		string2int = new HashMap<String, Integer>();
-		int2string = new HashMap<Integer, String>();
+		string2int = new HashMap<>();
+		int2string = new HashMap<>();
 		counter = 0;
 	}
 	

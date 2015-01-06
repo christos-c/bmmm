@@ -30,7 +30,7 @@ public class Evaluator {
 		
 		//Induce the number of gold tags
 		numGoldTags = 0;
-		List<Integer> seenTags = new ArrayList<Integer>();
+		List<Integer> seenTags = new ArrayList<>();
 		for (int goldTag:goldTags){
 			if (!seenTags.contains(goldTag)){
 				numGoldTags++;
@@ -70,7 +70,7 @@ public class Evaluator {
 	}
 	
 	public double manyToOne(){
-		Map<Integer, Integer> manyToOneMap = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> manyToOneMap = new HashMap<>();
 		
 		//Many-to-one mapping
 		for (int cluster = 0; cluster < coocCounts.length; cluster++){

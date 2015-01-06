@@ -20,7 +20,7 @@ public class Options {
 	alignmentsFile, corpusFileName, outFile, depsFile,
 	alignLangFileRegexp, corpusLang;
 	protected String[] alignLangs;
-	protected List<String> featureTypes = new ArrayList<String>();
+	protected List<String> featureTypes = new ArrayList<>();
 	
 	public Options(){}
 

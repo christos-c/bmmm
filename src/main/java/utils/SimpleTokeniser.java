@@ -15,7 +15,7 @@ public class SimpleTokeniser {
 	private List<String> punctMarks; 
 
 	public SimpleTokeniser(){
-		punctMarks = new ArrayList<String>();
+		punctMarks = new ArrayList<>();
 		punctMarks.add(".");
 		punctMarks.add(",");
 		punctMarks.add(";");

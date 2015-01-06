@@ -13,60 +13,62 @@ public class OptionsCmdLine extends Options{
 	public OptionsCmdLine(String[] args){
 		setDefaults();
 		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-in")) {
-				if (!checkNext(args,i)) corpusFileName = args[++i];
-			}
-			else if (args[i].equals("-out")) {
-				if (!checkNext(args,i)) outFile = args[++i];
-			}
-			else if (args[i].equals("-iters")) {
-				if (!checkNext(args,i)) numIters = Integer.parseInt(args[++i]);
-			}
-			else if (args[i].equals("-classes")) {
-				if (!checkNext(args,i)) numClasses = Integer.parseInt(args[++i]);
-			}
-			else if (args[i].equals("-printLog")) {
-				printLog = true;
-			}
-			else if (args[i].equals("-deps")) {
-				if (!checkNext(args,i)) depsFile = args[++i];
-				featureTypes.add(FeatureNames.DEPS);
-			}
-			else if (args[i].equals("-parg")) {
-				if (!checkNext(args,i)) pargFile = args[++i];
-				featureTypes.add(FeatureNames.PARG);
-			}
-			else if (args[i].equals("-morph")) {
-				if (!checkNext(args,i)) morphFile = args[++i];
-				featureTypes.add(FeatureNames.MORPH);
-			}
-			else if (args[i].equals("-noContext")){
-				featureTypes.remove(FeatureNames.CONTEXT);
-			}
-			//Alignment options
-			else if (args[i].equals("-alignLangs")){
-				featureTypes.add(FeatureNames.ALIGNS);
-				//Next argument should be either one language, or a list in ""
-				if (!checkNext(args,i)) {
-					String temp = args[++i];
-					if (temp.contains(" ")) alignLangs = temp.split("\\s+");
-					else {
-						alignLangs = new String[1];
-						alignLangs[0] = temp;
+			switch (args[i]) {
+				case "-in":
+					if (!checkNext(args, i)) corpusFileName = args[++i];
+					break;
+				case "-out":
+					if (!checkNext(args, i)) outFile = args[++i];
+					break;
+				case "-iters":
+					if (!checkNext(args, i)) numIters = Integer.parseInt(args[++i]);
+					break;
+				case "-classes":
+					if (!checkNext(args, i)) numClasses = Integer.parseInt(args[++i]);
+					break;
+				case "-printLog":
+					printLog = true;
+					break;
+				case "-deps":
+					if (!checkNext(args, i)) depsFile = args[++i];
+					featureTypes.add(FeatureNames.DEPS);
+					break;
+				case "-parg":
+					if (!checkNext(args, i)) pargFile = args[++i];
+					featureTypes.add(FeatureNames.PARG);
+					break;
+				case "-morph":
+					if (!checkNext(args, i)) morphFile = args[++i];
+					featureTypes.add(FeatureNames.MORPH);
+					break;
+				case "-noContext":
+					featureTypes.remove(FeatureNames.CONTEXT);
+					break;
+				//Alignment options
+				case "-alignLangs":
+					featureTypes.add(FeatureNames.ALIGNS);
+					//Next argument should be either one language, or a list in ""
+					if (!checkNext(args, i)) {
+						String temp = args[++i];
+						if (temp.contains(" ")) alignLangs = temp.split("\\s+");
+						else {
+							alignLangs = new String[1];
+							alignLangs[0] = temp;
+						}
 					}
-				}
-			}
-			else if (args[i].equals("-alignFile")){
-				if (!checkNext(args,i)) alignmentsFile = args[++i];
-			}
-			else if (args[i].equals("-langsFileRegexp")){
-				if (!checkNext(args,i)) alignLangFileRegexp = args[++i];
-			}
-			else if (args[i].equals("-useLR")){
-				alignUseLRContext = true;
-			}
-			else if (args[i].equals("-corpusLang")){
-				if (!checkNext(args,i)) corpusLang = args[++i];
+					break;
+				case "-alignFile":
+					if (!checkNext(args, i)) alignmentsFile = args[++i];
+					break;
+				case "-langsFileRegexp":
+					if (!checkNext(args, i)) alignLangFileRegexp = args[++i];
+					break;
+				case "-useLR":
+					alignUseLRContext = true;
+					break;
+				case "-corpusLang":
+					if (!checkNext(args, i)) corpusLang = args[++i];
+					break;
 			}
 		}
 	}

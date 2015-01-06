@@ -1,6 +1,7 @@
 package tagInducer.features;
 
 import utils.FileUtils;
+import utils.MapUtils;
 import utils.StringCoder;
 
 import java.io.BufferedReader;
@@ -21,6 +22,10 @@ public class PargFeatures {
 
         int numWordTypes = wordsCoder.size();
 
+        // TODO Apply a threshold
+        for (int feat : pargFeatCounts.keySet()) {
+            int sum = MapUtils.sumMap(pargFeatCounts.get(feat));
+        }
         // TODO Add the NULL feature at the end
         int[][] features = new int[numWordTypes][pargFeatCounts.size()+1];
 
@@ -40,7 +45,7 @@ public class PargFeatures {
         int featCatInd = 2;
         int featSlotInd = 3;
 
-        Map<Integer, Map<Integer, Integer>> featMap = new HashMap<Integer, Map<Integer, Integer>>();
+        Map<Integer, Map<Integer, Integer>> featMap = new HashMap<>();
         StringCoder pargFeatCoder = new StringCoder();
         String line;
         BufferedReader in = FileUtils.createIn(pargFile);
@@ -65,7 +70,7 @@ public class PargFeatures {
                     featCount.put(word, 1);
             }
             else {
-                featCount = new HashMap<Integer, Integer>();
+                featCount = new HashMap<>();
                 featCount.put(word, 1);
             }
             featMap.put(feat, featCount);

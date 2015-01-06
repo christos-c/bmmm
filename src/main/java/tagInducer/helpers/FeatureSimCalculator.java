@@ -20,8 +20,8 @@ public class FeatureSimCalculator {
 		//1.For each feature type (column) calculate the mean
 		//2.For each word type (row) calculate the absolute distance from the mean
 		//3.Sum over all word and feature types
-		Map<String, double[]> means = new HashMap<String, double[]>();
-		Map<String, Double> scores = new HashMap<String, Double>();
+		Map<String, double[]> means = new HashMap<>();
+		Map<String, Double> scores = new HashMap<>();
 		for (String pos:featuresMap.keySet()){
 			if (featuresMap.get(pos).length==0) continue;
 			//[word types] x [features]
@@ -86,7 +86,7 @@ public class FeatureSimCalculator {
 		int [][] featsNN = {{100, 34, 0}, {2, 45, 126}, {34, 568, 8}};
 		int [][] featsVB = {{0, 250, 45}, {50, 0, 1}, {3, 88, 74}};
 		int [][] featsJJ = {{87, 5, 86}, {96, 8, 456}, {8, 8, 0}};
-		Map<String, int[][]> map = new HashMap<String, int[][]>();
+		Map<String, int[][]> map = new HashMap<>();
 		map.put("NN", featsNN);
 		map.put("VB", featsVB);
 		map.put("JJ", featsJJ);

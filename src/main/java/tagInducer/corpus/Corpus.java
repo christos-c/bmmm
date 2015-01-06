@@ -38,7 +38,7 @@ public abstract class Corpus {
 	 * <code>String</code> will contain the feature type (left, right, ...)
 	 * and <code>int[][]</code> is a MxF array of features per type.<br> 
 	 */
-	protected Map<String, int[][]> featureVectors = new HashMap<String, int[][]>();
+	protected Map<String, int[][]> featureVectors = new HashMap<>();
 
 	/** Number of feature (most frequent) words */
 	private int numContextFeatWords;
@@ -46,7 +46,7 @@ public abstract class Corpus {
 	/** Whether the corpus has gold-standard tag annotation */
 	protected boolean HAS_TAGS = true;
 
-	private Map<Integer, Integer> frequentWordMap = new HashMap<Integer, Integer>();
+	private Map<Integer, Integer> frequentWordMap = new HashMap<>();
 
 	protected StringUtils s = new StringUtils();
 	
@@ -74,7 +74,7 @@ public abstract class Corpus {
 		}
 
 		//Create a list of feature words (N most frequent words)
-		Map<Integer, Integer> wordFreq = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> wordFreq = new HashMap<>();
 		//Get the word counts
 		for (int word : words){
 			if (wordFreq.containsKey(word)) wordFreq.put(word, wordFreq.get(word) + 1);

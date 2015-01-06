@@ -31,16 +31,16 @@ public class AlignFeatures {
 		String corpusLang = o.getCorpusLanguage();
 		boolean useLRContextWords = o.useLRContextWords();
 		
-		Map<String, int[][]> alignFeatures = new HashMap<String, int[][]>();
-		Map<String, int[][]> corpora = new HashMap<String, int[][]>();
-		Map<String, Map<Integer, Integer>> corporaContextWordMaps = new HashMap<String, Map<Integer, Integer>>();
+		Map<String, int[][]> alignFeatures = new HashMap<>();
+		Map<String, int[][]> corpora = new HashMap<>();
+		Map<String, Map<Integer, Integer>> corporaContextWordMaps = new HashMap<>();
 		for (String lang:langs){
 			int[][] features = new int[numWordTypes][NUM_CONTEXT_WORDS];
 			alignFeatures.put(lang, features);
 			
 			int[][] temp = readLangCorpus(langFileRegexp, lang);
 			corpora.put(lang, temp);
-			Map<Integer, Integer> wordFreq = new HashMap<Integer, Integer>();
+			Map<Integer, Integer> wordFreq = new HashMap<>();
 			//Get the word counts
 			for (int[] sentence:temp){
 				for (int word:sentence){
@@ -50,7 +50,7 @@ public class AlignFeatures {
 			}
 			//Resort wrt frequency and prune
 			List<Integer> contextWordList= MapUtils.sortByValueList(wordFreq).subList(0, NUM_CONTEXT_WORDS);
-			Map<Integer, Integer> contextWordMap = new HashMap<Integer, Integer>();
+			Map<Integer, Integer> contextWordMap = new HashMap<>();
 			int wordInd = 0;
 			for (int word:contextWordList){
 				contextWordMap.put(word, wordInd);
@@ -157,7 +157,7 @@ public class AlignFeatures {
 	public int[][] readLangCorpus(String regexp, String lang) throws IOException{
 		String line;
 		int wordTypeInd = 0, sentenceInd = 0;
-		Map<String, Integer> wordTypes2Int = new HashMap<String, Integer>();
+		Map<String, Integer> wordTypes2Int = new HashMap<>();
 		
 		String file = regexp.replaceAll("\\*", lang);
 		file = file.substring(1, file.length()-1);

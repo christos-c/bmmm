@@ -73,7 +73,7 @@ public class GibbsSampler {
 
 	public void setRunParameters(int iters){
 		//Initialise betas
-		hyperFeats = new HashMap<String, Double>();
+		hyperFeats = new HashMap<>();
 		for (String feat:features.keySet()) hyperFeats.put(feat, 0.1);
 		//Initialise alpha
 		this.hyperClass = 0.1;
@@ -237,8 +237,8 @@ public class GibbsSampler {
 	 */
 	public void initialise(int numClusters) {
 		typesPerClass = new int[numClusters];
-		featuresPerClass = new HashMap<String, int[][]>();
-		sumClassFeatures = new HashMap<String, int[]>();
+		featuresPerClass = new HashMap<>();
+		sumClassFeatures = new HashMap<>();
 
 		for (String featType:features.keySet()){
 			int[][] temp = new int[numClusters][features.get(featType)[0].length];
@@ -289,7 +289,7 @@ public class GibbsSampler {
 
 			//SAMPLE BETAS (hyperFeats)
 			for (String feat:hyperFeats.keySet()){
-				Map<String, Double> newHyperFeats = new HashMap<String, Double>(hyperFeats);
+				Map<String, Double> newHyperFeats = new HashMap<>(hyperFeats);
 				double hyperFeat = hyperFeats.get(feat);
 				double newHyperFeat = m.randNormal(hyperFeat, hyperFeat * HYPERSAMPLING_RATIO);
 				newHyperFeats.put(feat, newHyperFeat);
@@ -336,8 +336,8 @@ public class GibbsSampler {
 	 */
 	protected double totalLogLikelihood(Map<String, Double> hyperFeats){
 		double likelihood = 0;
-		Map<String, int[][]> cumClassTokens = new HashMap<String, int[][]>();
-		Map<String, int[]> cumTotClassTokens =  new HashMap<String, int[]>();
+		Map<String, int[][]> cumClassTokens = new HashMap<>();
+		Map<String, int[]> cumTotClassTokens =  new HashMap<>();
 		//Initialise the cumulative count maps
 		for (String featType:features.keySet()){
 			int classTokens[][] = new int[numClasses][features.get(featType)[0].length];

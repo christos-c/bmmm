@@ -79,7 +79,7 @@ public class MorfFeatures {
 	}
 
 	private Map<String, Map<String, Integer>> readMorph(StringCoder wordsCoder, int[] words) throws IOException{
-		Map<String, Map<String, Integer>> morphFeatCounts = new HashMap<String, Map<String, Integer>>();
+		Map<String, Map<String, Integer>> morphFeatCounts = new HashMap<>();
 		if (morphMethod.equalsIgnoreCase("morfessor")){
 			BufferedReader in = FileUtils.createIn(morphFile);
 			String line, word, suffix;
@@ -100,7 +100,7 @@ public class MorfFeatures {
 						morphFeatCounts.get(suffix).put(word, 1);
 					}
 					else {
-						Map<String, Integer> temp = new HashMap<String, Integer>();
+						Map<String, Integer> temp = new HashMap<>();
 						temp.put(word, 1);
 						morphFeatCounts.put(suffix, temp);
 					}
@@ -118,7 +118,7 @@ public class MorfFeatures {
 						morphFeatCounts.get(suffix).put(wordType, 1);
 				}
 				else {
-					Map<String, Integer> temp = new HashMap<String, Integer>();
+					Map<String, Integer> temp = new HashMap<>();
 					temp.put(wordType, 1);
 					morphFeatCounts.put(suffix, temp);
 				}

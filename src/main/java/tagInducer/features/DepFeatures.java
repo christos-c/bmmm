@@ -64,7 +64,7 @@ public class DepFeatures {
 	 * @param corpus The object containing the words, tags and dependencies
 	 */
 	public void readDepFeats(CoNLLCorpus corpus) {
-		headDepMap = new HashMap<Integer, Map<Integer, Integer>>();
+		headDepMap = new HashMap<>();
 		int[] corpusWords = corpus.getWords();
 		int[] corpusDeps = corpus.getDeps();
 		for (int typeIndex = 0; typeIndex < corpus.getNumTypes(); typeIndex++) {
@@ -78,15 +78,15 @@ public class DepFeatures {
 	 * @throws IOException
 	 */
 	public void readDepFeats(StringCoder wordsCoder) throws IOException {
-		headDepMap = new HashMap<Integer, Map<Integer, Integer>>();
+		headDepMap = new HashMap<>();
 		BufferedReader in = FileUtils.createIn(depsFile);
 		String line;
 		//A list to store the sentence words
-		List<Integer> sentWords = new ArrayList<Integer>();
+		List<Integer> sentWords = new ArrayList<>();
 		//A list to store the sentence head dependencies
-		List<Integer> sentDeps = new ArrayList<Integer>();
+		List<Integer> sentDeps = new ArrayList<>();
 		//A list to store the sentence PoS tags
-		List<Integer> sentPOS = new ArrayList<Integer>();
+		List<Integer> sentPOS = new ArrayList<>();
 		while ((line = in.readLine())!=null) {
 			//Read through each sentence
 			if (!line.isEmpty()) {
@@ -130,7 +130,7 @@ public class DepFeatures {
 			headDepMap.put(wordType, temp);
 		}
 		else {
-			Map<Integer, Integer> temp = new HashMap<Integer, Integer>();
+			Map<Integer, Integer> temp = new HashMap<>();
 			temp.put(head, 1);
 			headDepMap.put(wordType, temp);
 		}

@@ -11,18 +11,15 @@ import java.util.Map;
 
 public class TagStats {
 	
-	FileUtils f = new FileUtils();
-	
 	public void createConfusionMatrix(String sFile, String uFile) throws IOException{
-		BufferedReader supIn = f.createIn(sFile);
-		BufferedReader unsupIn = f.createIn(uFile);
-		BufferedWriter out = f.createOut(f.strip(uFile)+".confMatrix");
+		BufferedReader supIn = FileUtils.createIn(sFile);
+		BufferedReader unsupIn = FileUtils.createIn(uFile);
+		BufferedWriter out = FileUtils.createOut(FileUtils.strip(uFile) + ".confMatrix");
 		String supLine, unsupLine, sTag, uTag, supWordTag, unsupWordTag;
 		String[] supWordTags, unsupWordTags;
 		Map<String, Integer> clustFreq = new HashMap<String, Integer>();
 		Map<String, Integer> tagFreq = new HashMap<String, Integer>();
 		Map<String, Integer> coocMap = new HashMap<String, Integer>();
-//		int counter = 0;
 		while ((supLine=supIn.readLine())!=null){
 			unsupLine=unsupIn.readLine().trim();
 			supWordTags = supLine.split("\\s+");
@@ -41,7 +38,6 @@ public class TagStats {
 				if (coocMap.containsKey(key)) coocMap.put(key, coocMap.get(key)+1);
 				else coocMap.put(key, 1);
 			}
-//			if (counter++ > 6737) break;
 		}
 		//Sort the maps
 		List<String> tagsSorted = MapUtils.sortByValueList(tagFreq);
@@ -81,8 +77,8 @@ public class TagStats {
 	 * @throws IOException
 	 */
 	public void createClusters(String file, int topN) throws IOException{
-		BufferedReader in = f.createIn(file);
-		BufferedWriter out = f.createOut(f.strip(file)+".clusters");
+		BufferedReader in = FileUtils.createIn(file);
+		BufferedWriter out = FileUtils.createOut(FileUtils.strip(file) + ".clusters");
 		String line, tag, word;
 		String[] wordTags;
 		Map<String, Map<String, Integer>> clusters = new HashMap<String, Map<String,Integer>>();
@@ -118,8 +114,8 @@ public class TagStats {
 	 * @throws IOException
 	 */
 	public void createTagDist(String file) throws IOException{
-		BufferedReader in = f.createIn(file);
-		BufferedWriter out = f.createOut(f.strip(file)+".tagDist");
+		BufferedReader in = FileUtils.createIn(file);
+		BufferedWriter out = FileUtils.createOut(FileUtils.strip(file) + ".tagDist");
 		String line,tag;
 		String[] wordTags;
 		Map<String, Integer> freqMap = new HashMap<String, Integer>();
@@ -146,9 +142,9 @@ public class TagStats {
 	 * @throws IOException
 	 */
 	public void createTagMap(String sFile, String uFile) throws IOException{
-		BufferedReader supIn = f.createIn(sFile);
-		BufferedReader unsupIn = f.createIn(uFile);
-		BufferedWriter out = f.createOut(f.strip(uFile)+".tagMap");
+		BufferedReader supIn = FileUtils.createIn(sFile);
+		BufferedReader unsupIn = FileUtils.createIn(uFile);
+		BufferedWriter out = FileUtils.createOut(FileUtils.strip(uFile) + ".tagMap");
 		String supLine, unsupLine, supWordTag, unsupWordTag, sTag, uTag;
 		String[] supWordTags, unsupWordTags;
 		Map<String, List<String>> tagMap = new HashMap<String, List<String>>();
@@ -185,7 +181,7 @@ public class TagStats {
 		List<String> seen = new ArrayList<String>();
 		int totalTags = list.size();
 		int correctTags = numTags(list,prefTag);
-		int num=0;
+		int num;
 		String text = prefTag+"["+correctTags+"/"+totalTags+" "+perc(correctTags,totalTags)+"]\t";
 		for (String tag:list){
 			if (!tag.equals(prefTag) && !seen.contains(tag)){
@@ -215,7 +211,7 @@ public class TagStats {
 		Map<String, Integer> tmpMap = new HashMap<String, Integer>();
 		for (String tag:list){
 			if (tmpMap.containsKey(tag)) {
-				int f = tmpMap.get(tag).intValue()+1;
+				int f = tmpMap.get(tag) +1;
 				tmpMap.remove(tag);
 				tmpMap.put(tag, f);
 			}

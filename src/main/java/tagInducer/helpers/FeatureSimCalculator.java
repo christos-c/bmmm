@@ -27,9 +27,9 @@ public class FeatureSimCalculator {
 			//[word types] x [features]
 			int[][] feat = featuresMap.get(pos);
 			double[] mean = new double[feat[0].length];
-			for (int i = 0; i < feat.length; i++) {
-				for (int j = 0; j < feat[i].length; j++) {
-					mean[j] += feat[i][j];
+			for (int[] aFeat : feat) {
+				for (int j = 0; j < aFeat.length; j++) {
+					mean[j] += aFeat[j];
 				}
 			}
 			for (int i = 0; i < mean.length; i++) {

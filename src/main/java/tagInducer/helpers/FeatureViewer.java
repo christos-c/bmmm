@@ -14,9 +14,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 
 import utils.StringCoder;
 
@@ -31,7 +29,7 @@ public class FeatureViewer extends JFrame {
 
 	public FeatureViewer(StringCoder coder, int [][] features, String[] fNames){
 		super("Feature viewer");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setResizable(true);
 		panel = new DrawPanel(coder, features, fNames);
 		ScaleHandler scaler = new ScaleHandler();
@@ -79,7 +77,7 @@ public class FeatureViewer extends JFrame {
 			int posX = 25;
 			int posY = 50;
 			//int size = 10;
-			int posXRel = 0;
+			int posXRel;
 			int maxSize = 25;
 			int step = 0;
 			

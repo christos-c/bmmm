@@ -29,7 +29,6 @@ public class Evaluator {
 		this.goldTags = goldTags;
 		
 		//Induce the number of gold tags
-		//TODO: put this in the constructor
 		numGoldTags = 0;
 		List<Integer> seenTags = new ArrayList<Integer>();
 		for (int goldTag:goldTags){

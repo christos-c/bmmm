@@ -1,6 +1,8 @@
 package tagInducer;
 
 
+import tagInducer.features.FeatureNames;
+
 public class OptionsCmdLine extends Options{
 
 	/**
@@ -11,16 +13,8 @@ public class OptionsCmdLine extends Options{
 	public OptionsCmdLine(String[] args){
 		setDefaults();
 		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-deps")) {
-				if (!checkNext(args,i)) depsFile = args[++i];
-				featureTypes.add("DEPS");
-			}
-			else if (args[i].equals("-morph")) {
-				if (!checkNext(args,i)) morphFile = args[++i];
-				featureTypes.add("MORPH");
-			}
-			else if (args[i].equals("-noContext")){
-				featureTypes.remove("CONTEXT");
+			if (args[i].equals("-in")) {
+				if (!checkNext(args,i)) corpusFileName = args[++i];
 			}
 			else if (args[i].equals("-out")) {
 				if (!checkNext(args,i)) outFile = args[++i];
@@ -34,10 +28,24 @@ public class OptionsCmdLine extends Options{
 			else if (args[i].equals("-printLog")) {
 				printLog = true;
 			}
-			
+			else if (args[i].equals("-deps")) {
+				if (!checkNext(args,i)) depsFile = args[++i];
+				featureTypes.add(FeatureNames.DEPS);
+			}
+			else if (args[i].equals("-parg")) {
+				if (!checkNext(args,i)) pargFile = args[++i];
+				featureTypes.add(FeatureNames.PARG);
+			}
+			else if (args[i].equals("-morph")) {
+				if (!checkNext(args,i)) morphFile = args[++i];
+				featureTypes.add(FeatureNames.MORPH);
+			}
+			else if (args[i].equals("-noContext")){
+				featureTypes.remove(FeatureNames.CONTEXT);
+			}
 			//Alignment options
 			else if (args[i].equals("-alignLangs")){
-				featureTypes.add("ALIGNS");
+				featureTypes.add(FeatureNames.ALIGNS);
 				//Next argument should be either one language, or a list in ""
 				if (!checkNext(args,i)) {
 					String temp = args[++i];
@@ -60,15 +68,11 @@ public class OptionsCmdLine extends Options{
 			else if (args[i].equals("-corpusLang")){
 				if (!checkNext(args,i)) corpusLang = args[++i];
 			}
-			else {
-				corpusFileName = args[i];
-			}
 		}
 	}
 	
 	private void setDefaults(){
 		numClasses = 45;
-		numRuns = 1;
 		numContextFeats = 200;
 		numIters = 1000;
 		printLog = false;
@@ -77,18 +81,30 @@ public class OptionsCmdLine extends Options{
 		morphMethod = "morfessor";
 	}
 	
-	private boolean checkNext(String[] args, int i){
-		if (args.length <= i+1) return true;
-		if (args[i+1].startsWith("-")) return true;
-		return false;
+	private boolean checkNext(String[] args, int i) {
+		return args.length <= i + 1 || args[i + 1].startsWith("-");
 	}
 	
 	public static String usage(){
-		String usage = ">tagInducer.Inducer [options] <corpus-file-name>";
+		String usage = "$>tagInducer.Inducer -in <file> [options]";
+		usage += "\n\t";
+		usage += "## General options ##";
+		usage += "\n\t";
+		usage += "-in <file>:\tThe input corpus. Can be 1-sentence-per-line (tagged/raw) or CoNLL style";
+		usage += "\n\t";
+		usage += "-out <file>:\tThe output file. If not supplied the inducer with create an output dir";
+		usage += "\n\t";
+		usage += "-iters <num>:\tNumber of iterations (default=1000)";
+		usage += "\n\t";
+		usage += "-classes <num>:\tNumber of classes (default=45)";
+		usage += "\n\t";
+		usage += "-printLog:\tPrint log (default=false)";
 		usage += "\n\t";
 		usage += "## Feature options ##";
 		usage += "\n\t";
-		usage += "-deps <file>:\tUse dependency features";
+		usage += "-deps [file]:\tUse dependency features (add file if corpus isn't CoNLL style)";
+		usage += "\n\t";
+		usage += "-parg [file]:\tUse PARG features";
 		usage += "\n\t";
 		usage += "-morph <file>:\tUse morfessor features";
 		usage += "\n\t";
@@ -103,16 +119,6 @@ public class OptionsCmdLine extends Options{
 		usage += "-corpusLang <lang>:\t\tThe language of the source corpus";
 		usage += "\n\t\t";
 		usage += "-alignFile <file>:\t\tFile containing the word alignments";
-		usage += "\n\t";
-		usage += "## General options ##";
-		usage += "\n\t";
-		usage += "-out <file>:\tThe output file. If not suplied the inducer with create an output dir";
-		usage += "\n\t";
-		usage += "-iters <num>:\tNumber of iterations";
-		usage += "\n\t";
-		usage += "-classes <num>:\tNumber of classes (clusters)";
-		usage += "\n\t";
-		usage += "-printLog:\tPrint log";
 		return usage;
 	}
 }

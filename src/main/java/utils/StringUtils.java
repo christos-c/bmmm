@@ -9,16 +9,6 @@ public class StringUtils {
 	
 	private String tagDel = "/";
 	
-	public boolean checkForTags(String line) {
-		//I could probably optimise this
-		boolean hasTags = true;
-		for (String word:line.split("\\s+")){
-			if (word.contains("/") && hasTags) hasTags = true;
-			else hasTags = false;
-		}
-		return hasTags;
-	}
-	
 	/**
 	 * Counts the number of sentences in a document
 	 */
@@ -26,7 +16,7 @@ public class StringUtils {
 	    InputStream is = new BufferedInputStream(new FileInputStream(filename));
 	    byte[] c = new byte[1024];
 	    int count = 0;
-	    int readChars = 0;
+	    int readChars;
 	    while ((readChars = is.read(c)) != -1) {
 	        for (int i = 0; i < readChars; ++i) {
 	            if (c[i] == '\n')
@@ -59,23 +49,10 @@ public class StringUtils {
 		else return wordTag.split(tagDel)[1];
 	}
 
-	/**
-	 * Cheks for non-alphabetic words
-	 * @param s String to check
-	 * @return <code>false</code> if non-alphabetic
-	 */
-	public boolean checkString(String s){
-		for(int ii = s.length(); ii --> 0; ){
-			if( ! Character.isLetter(s.charAt(ii)) )
-				return false;
-		}
-		return true;
-	}
-	
 	public boolean checkString(String s, int len){
 		if (s.length() <= len) return false;
-		for(int ii = s.length(); ii --> 0; ){
-			if( ! Character.isLetter(s.charAt(ii)) )
+		for (int ii = s.length(); ii --> 0; ) {
+			if (!Character.isLetter(s.charAt(ii)))
 				return false;
 		}
 		return true;
@@ -100,8 +77,14 @@ public class StringUtils {
 		}
 		return suff;
 	}
-	
-	public String stripExt (String filename){
-		return filename.substring(0,filename.indexOf('.'));
+
+	/** Helper function for pretty-printing progress (prints backspace characters) */
+	public String del(String toDel){
+		char bs = '\b';
+		String d = "";
+		for (int i = 0; i < toDel.toCharArray().length; i++) {
+			d += bs;
+		}
+		return d;
 	}
 }

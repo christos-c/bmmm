@@ -40,10 +40,6 @@ public class SimpleTokeniser {
 		return endStr+" .";
 	}
 
-	public void addMark(String mark){
-		punctMarks.add(mark);
-	}
-	
 	private String addSpaceBR(String line) {
 		String endStr="";
 		//Find all punctuation marks and add a space before
@@ -83,6 +79,6 @@ public class SimpleTokeniser {
 			in.close();
 			out.close();
 		}
-		catch(IOException e){e.printStackTrace();};
+		catch(IOException e){e.printStackTrace();}
 	}
 }

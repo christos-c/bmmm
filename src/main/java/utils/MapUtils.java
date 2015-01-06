@@ -33,7 +33,6 @@ public class MapUtils {
 	}
 	
 	/** Return an ordered list containing only items above the threshold. */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List<String> sortByValueList(final Map m, double percentage) {
 		List<String> keys = new ArrayList<String>();
 		List<String> keysThresh = new ArrayList<String>();
@@ -85,10 +84,7 @@ public class MapUtils {
 			}
 		});
 		Map<K, V> result = new LinkedHashMap<K, V>();
-		for (Iterator<K> it = keys.iterator(); it.hasNext();) {
-			K key = it.next();
-			result.put(key, m.get(key));
-		}
+		for (K key : keys) result.put(key, m.get(key));
 		return result;
 	}
 
@@ -121,8 +117,8 @@ public class MapUtils {
 		
 		for (int j=0; j<combinations-1; j++){
 			boolean found = false;
-			// We Use reverse order
-			for(int l = index.length-1 ; l >=0 && found == false; l--) {
+			// We use reverse order
+			for (int l = index.length-1 ; (l >= 0) && !found; l--) {
 				int currentListSize = bigList.get(l).size();
 				if (index[l] < currentListSize-1) {
 					index[l] = index[l]+1;

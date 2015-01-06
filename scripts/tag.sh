@@ -85,4 +85,4 @@ if [ ! -z $deps_file ]; then
 	dep_params="-deps $deps_file"
 fi
 options="-classes $num_clusters -iters 500 -out $out_file $align_params $morph_params $dep_params"
-java -jar bin/tagger.jar $options $raw_file
+java -jar bin/bmmm.jar $options $raw_file

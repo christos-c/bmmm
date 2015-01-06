@@ -1,10 +1,15 @@
 package tagInducer;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import tagInducer.corpus.CoNLLCorpus;
 import tagInducer.corpus.Corpus;
+import tagInducer.corpus.LineCorpus;
+import tagInducer.features.FeatureNames;
+import utils.FileUtils;
 import utils.TagStats;
 
 /**
@@ -12,13 +17,13 @@ import utils.TagStats;
  * @author Christos Christodoulopoulos
  */
 public class Inducer{
-	private static String outDir = "results";
-	private String outFile, runDir;
+	private static final String outDir = "results";
+	private String runDir;
 	private Corpus corpus;
 	private Options o;
 	private GibbsSampler sampler;
 	private List<String> featureTypes;
-	
+
 	public Inducer(String[] args) throws IOException{
 		if (args.length > 1) o = new OptionsCmdLine(args);
 		else if (args.length == 1) o = new Options(args[0]);
@@ -28,32 +33,35 @@ public class Inducer{
 		}
 		System.out.println(o);
 		featureTypes = o.getFeatureTypes();
-		
-		//Parse the corpus
-		corpus = new Corpus(o);
-		
-		if (featureTypes.contains("CONTEXT")) corpus.addAllContextFeats();
-		if (featureTypes.contains("DEPS")) corpus.addDepFeats();
-		if (featureTypes.contains("MORPH")) corpus.addMorphFeats();
-		if (featureTypes.contains("ALIGNS")) corpus.addAlignsFeats();
-		
+
+		//Read the corpus (need to determine if it's CoNLL-style or not)
+		BufferedReader in = FileUtils.createIn(o.getCorpusFileName());
+		String line = in.readLine();
+		if (line.split("\\s{2,}").length > 1)
+			corpus = new CoNLLCorpus(o);
+		else corpus = new LineCorpus(o);
+
+		if (featureTypes.contains(FeatureNames.CONTEXT)) corpus.addAllContextFeats();
+		if (featureTypes.contains(FeatureNames.DEPS)) corpus.addDepFeats();
+		if (featureTypes.contains(FeatureNames.MORPH)) corpus.addMorphFeats();
+		if (featureTypes.contains(FeatureNames.ALIGNS)) corpus.addAlignsFeats();
+		if (featureTypes.contains(FeatureNames.PARG)) corpus.addPargFeats();
+
 		//Construct and configure the sampler
-		sampler = new FullGibbsSampler(corpus, o);
+		sampler = new GibbsSampler(corpus, o);
 		sampler.initialise(o.getNumClasses());
 
-		for (int run = 1; run <= o.getNumRuns(); run++){
-			int iters = o.getIters();
-			System.out.println("[REP: "+run+"/"+o.getNumRuns()+"]");
-			runInducer(iters);
-			System.out.println();
-		}
-
+		int iters = o.getIters();
+		long start = System.currentTimeMillis();
+		runInducer(iters);
+		long end = System.currentTimeMillis();
+		System.out.println("Experiment took " + ((end - start) / 1000) + " seconds");
 	}
-	
+
 	private void runInducer(int iters) throws IOException{
 		String corpusFileName = o.getCorpusFileName();
 		int numClusters = o.getNumClasses();
-		
+
 		//Check if the user specified languages for the align feature
 		if (featureTypes.contains("ALIGNS")){
 			if (o.getAlignLangs() == null) {
@@ -61,7 +69,7 @@ public class Inducer{
 				System.exit(1);
 			}
 		}
-		
+
 		//IF the tagged generates all the output files, create the dir
 		if (!o.isOutputToSingleFile()){
 			//Generate the name of the directory for this run (dName)
@@ -76,7 +84,7 @@ public class Inducer{
 					for (String lang:o.getAlignLangs()) dName +=lang.toUpperCase();
 				}
 				else if (type.equals("MORPH")) {
-					if (o.getMorphMethod().equalsIgnoreCase("morfessor")) dName += "_morphM"; 
+					if (o.getMorphMethod().equalsIgnoreCase("morfessor")) dName += "_morphM";
 					else if (o.getMorphMethod().equalsIgnoreCase("letter")) dName += "_morphL";
 					if (o.isExtendedMorph()) dName+="_extMFeats";
 				}
@@ -84,13 +92,13 @@ public class Inducer{
 					dName += "_"+type;
 				}
 			}
-			if (o.getTiedHyperType()!=null) dName += "_"+o.getTiedHyperType();
 			dName += "_i"+iters;
 
 			int maxRun = 0;
 			File dFile = new File(outDir+"/"+dName);
 			if (dFile.isDirectory()){
 				File[] subDirs = dFile.listFiles();
+				assert subDirs != null;
 				for (File subDir:subDirs){
 					String sDirName = subDir.getName();
 					if (sDirName.startsWith(cName)){
@@ -106,24 +114,25 @@ public class Inducer{
 			//Create the output dir for this run
 			runDir = outDir+"/"+dName;
 			if (!new File(runDir).mkdirs()) {
-				System.err.println("Couldn't create output dirs"); 
+				System.err.println("Couldn't create output dirs");
 				System.exit(1);
 			}
 		}
-		
+
 		//Set the parameters for the current run
 		sampler.setRunParameters(iters);
-		
+
 		//**Run the sampler!**
 		//Dir can be null at this stage (if only tagged file is generated)
 		sampler.gibbs(runDir);
 
 		//Output the tagged file
+		String outFile;
 		if (o.isOutputToSingleFile())
 			outFile = o.getOutFile();
 		else outFile = runDir+"/out.tagged";
 		corpus.writeTagged(sampler.getTokenAssignments(true), outFile);
-		
+
 		//Do some statistics (again only if we're generating all the files)
 		if (!o.isOutputToSingleFile() && corpus.hasTags()){
 			TagStats stat = new TagStats();

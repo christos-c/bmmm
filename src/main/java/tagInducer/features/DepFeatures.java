@@ -65,10 +65,22 @@ public class DepFeatures {
 	 */
 	public void readDepFeats(CoNLLCorpus corpus) {
 		headDepMap = new HashMap<>();
-		int[] corpusWords = corpus.getWords();
-		int[] corpusDeps = corpus.getDeps();
-		for (int typeIndex = 0; typeIndex < corpus.getNumTypes(); typeIndex++) {
-			addDep(corpusWords[typeIndex], corpusDeps[typeIndex]);
+		int[][] corpusSents = corpus.getCorpusSents();
+		int[][] corpusDeps = corpus.getCorpusDeps();
+		int[][] corpusTags = corpus.getCorpusClusters();
+		for (int sentIndex = 0; sentIndex < corpus.getNumTypes(); sentIndex++) {
+			for (int wordIndex = 0; wordIndex < corpus.getNumTypes(); wordIndex++) {
+				int headIndex = corpusDeps[sentIndex][wordIndex];
+				if (headIndex == 0) {
+					addDep(corpusSents[sentIndex][wordIndex], -1);
+				} else {
+					int head = corpusTags[sentIndex][headIndex - 1];
+					addDep(corpusSents[sentIndex][wordIndex], head);
+					//Now for the reverse dependency (comment out for gold deps)
+					head = corpusTags[sentIndex][wordIndex];
+					addDep(corpusSents[sentIndex][headIndex - 1], head);
+				}
+			}
 		}
 	}
 
@@ -85,7 +97,7 @@ public class DepFeatures {
 		List<Integer> sentWords = new ArrayList<>();
 		//A list to store the sentence head dependencies
 		List<Integer> sentDeps = new ArrayList<>();
-		//A list to store the sentence PoS tags
+		//A list to store the sentence PoS tags (these should be the clusters from a previous BMMM run)
 		List<Integer> sentPOS = new ArrayList<>();
 		while ((line = in.readLine())!=null) {
 			//Read through each sentence

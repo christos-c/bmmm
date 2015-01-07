@@ -37,7 +37,7 @@ public class Inducer{
 		//Read the corpus (need to determine if it's CoNLL-style or not)
 		BufferedReader in = FileUtils.createIn(o.getCorpusFileName());
 		String line = in.readLine();
-		if (line.split("\\s{2,}").length > 1)
+		if (line.split("\\s{2,}").length > 1 || line.split("\t").length > 1)
 			corpus = new CoNLLCorpus(o);
 		else corpus = new LineCorpus(o);
 
@@ -46,6 +46,7 @@ public class Inducer{
 		if (featureTypes.contains(FeatureNames.MORPH)) corpus.addMorphFeats();
 		if (featureTypes.contains(FeatureNames.ALIGNS)) corpus.addAlignsFeats();
 		if (featureTypes.contains(FeatureNames.PARG)) corpus.addPargFeats();
+		if (featureTypes.contains(FeatureNames.PARGDEP)) corpus.addPargDepFeats();
 
 		//Construct and configure the sampler
 		sampler = new GibbsSampler(corpus, o);

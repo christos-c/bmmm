@@ -5,7 +5,7 @@ import tagInducer.features.AlignFeatures;
 import tagInducer.features.ContextFeatures;
 import tagInducer.features.MorfFeatures;
 import tagInducer.features.PargFeatures;
-import utils.MapUtils;
+import utils.CollectionUtils;
 import utils.StringCoder;
 import utils.StringUtils;
 
@@ -17,7 +17,7 @@ import java.util.Map;
 public abstract class Corpus {
 
 	/** The full corpus (arrays of sentences) */
-	protected int[][] corpus;
+	protected int[][] corpusSents;
 
 	/** The full corpus tags (arrays of sentences) */
 	protected int[][] corpusGoldTags;
@@ -65,9 +65,9 @@ public abstract class Corpus {
 
 		//Populate words
 		int wordInd = 0;
-		for (int sentence = 0; sentence < corpus.length; sentence++){
-			for (int word = 0; word < corpus[sentence].length; word++){
-				words[wordInd] = corpus[sentence][word];
+		for (int sentence = 0; sentence < corpusSents.length; sentence++){
+			for (int word = 0; word < corpusSents[sentence].length; word++){
+				words[wordInd] = corpusSents[sentence][word];
 				if (HAS_TAGS) goldTags[wordInd] = corpusGoldTags[sentence][word];
 				wordInd++;
 			}
@@ -76,14 +76,14 @@ public abstract class Corpus {
 		//Create a list of feature words (N most frequent words)
 		Map<Integer, Integer> wordFreq = new HashMap<>();
 		//Get the word counts
-		for (int word : words){
+		for (int word : words) {
 			if (wordFreq.containsKey(word)) wordFreq.put(word, wordFreq.get(word) + 1);
 			else wordFreq.put(word, 1);
 		}
 		//Resort wrt frequency and prune
 		// Check in case we have less than numContextFeatWords in the corpus
 		numContextFeatWords = Math.min(numContextFeatWords, wordFreq.size());
-		List<Integer> frequentWordList = MapUtils.sortByValueList(wordFreq).subList(0, numContextFeatWords);
+		List<Integer> frequentWordList = CollectionUtils.sortByValueList(wordFreq).subList(0, numContextFeatWords);
 		
 		wordInd = 0;
 		for (int word: frequentWordList){
@@ -93,7 +93,7 @@ public abstract class Corpus {
 	}
 	
 	public void addAllContextFeats() throws IOException {
-		new ContextFeatures(wordsCoder, numContextFeatWords, featureVectors, corpus, frequentWordMap);
+		new ContextFeatures(wordsCoder, numContextFeatWords, featureVectors, corpusSents, frequentWordMap);
 	}
 
 	// This depends on the corpus type
@@ -104,12 +104,14 @@ public abstract class Corpus {
 	}
 	
 	public void addAlignsFeats() throws IOException {
-		new AlignFeatures(wordsCoder.size(), corpus, featureVectors, words, o);
+		new AlignFeatures(wordsCoder.size(), corpusSents, featureVectors, words, o);
 	}
 
 	public void addPargFeats() throws IOException {
 		new PargFeatures(wordsCoder, featureVectors, o.getPargFile());
 	}
+
+	public abstract void addPargDepFeats() throws IOException;
 
 	protected abstract void readCorpus();
 
@@ -119,26 +121,14 @@ public abstract class Corpus {
 	 * @param outFile The name of the output file
 	 */
 	public abstract void writeTagged(int[] classes, String outFile) throws IOException;
-	
-	/**
-	 * Returns the gold-standard tags (if they exist)
-	 */
-	public int[] getGoldTags(){
-		int wordInd = 0;
-		for (int[] goldTagSent : corpusGoldTags) {
-			for (int goldTagWord : goldTagSent) {
-				goldTags[wordInd] = goldTagWord;
-				wordInd++;
-			}
-		}
-		return goldTags;
-	}
 
+	/** Returns the gold-standard tags (if they exist) */
+	public int[] getGoldTags(){return goldTags;}
 	/** Returns the bag-of-words */
 	public int[] getWords(){return words;}
 	public int getNumTypes(){return wordsCoder.size();}
 	/** Returns the features of the words in bag-of-words form */
 	public Map<String, int[][]> getFeatures(){return featureVectors;}
-	public String int2Word(int index){return wordsCoder.decode(index);}
 	public boolean hasTags() {return HAS_TAGS;}
+	public int[][] getCorpusSents() {return corpusSents;}
 }

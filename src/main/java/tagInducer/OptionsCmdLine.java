@@ -29,6 +29,9 @@ public class OptionsCmdLine extends Options{
 				case "-printLog":
 					printLog = true;
 					break;
+				case "-ignorePunct":
+					ignorePunct = true;
+					break;
 				case "-deps":
 					if (!checkNext(args, i)) depsFile = args[++i];
 					featureTypes.add(FeatureNames.DEPS);
@@ -101,6 +104,8 @@ public class OptionsCmdLine extends Options{
 		usage += "-classes <num>:\tNumber of classes (default=45)";
 		usage += "\n\t";
 		usage += "-printLog:\tPrint log (default=false)";
+		usage += "\n\t";
+		usage += "-ignorePunct:\tUse cluster ID -1 for all punctuation marks (default=false)";
 		usage += "\n\t";
 		usage += "## Feature options ##";
 		usage += "\n\t";

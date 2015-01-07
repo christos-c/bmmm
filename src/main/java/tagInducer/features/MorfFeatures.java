@@ -16,8 +16,8 @@ public class MorfFeatures {
 	private String morphMethod, morphFile;
 	private StringUtils s = new StringUtils();
 
-	public MorfFeatures(StringCoder wordsCoder, Map<String, int[][]> featureVectors,
-			int[] words, Options o) throws IOException {
+	public MorfFeatures(StringCoder wordsCoder, Map<String, int[][]> featureVectors, int[] words, Options o)
+			throws IOException {
 		boolean extendedMorphFeats = o.isExtendedMorph();
 		morphMethod = o.getMorphMethod();
 		morphFile = o.getMorphFile();		

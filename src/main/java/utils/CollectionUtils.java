@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MapUtils {
+public class CollectionUtils {
 	
 	public static <K, V> List<K> sortByValueList(final Map<K, V> m) {
 		List<K> keys = new ArrayList<>();
@@ -55,5 +55,24 @@ public class MapUtils {
 		int sum = 0;
 		for (Object key:map.keySet()) sum += map.get(key);
 		return sum;
+	}
+
+	public static int[] toArray(List<Integer> list) {
+		int[] array = new int[list.size()];
+		for (int i = 0; i < list.size(); i++) {
+			array[i] = list.get(i);
+		}
+		return array;
+ 	}
+
+	public static int[][] toArray2D(List<List<Integer>> list) {
+		int[][] array = new int[list.size()][];
+		for (int i = 0; i < list.size(); i++) {
+			array[i] = new int[list.get(i).size()];
+			for (int j = 0; j < list.get(i).size(); j++) {
+				array[i][j] = list.get(i).get(j);
+			}
+		}
+		return array;
 	}
 }

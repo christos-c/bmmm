@@ -49,7 +49,7 @@ public class LineCorpus extends Corpus {
             System.exit(-1);
         }
 
-        corpus = new int[sentenceInd][];
+        corpusSents = new int[sentenceInd][];
         words = new int[totalWords];
         if (HAS_TAGS) {
             corpusGoldTags = new int[sentenceInd][];
@@ -82,7 +82,7 @@ public class LineCorpus extends Corpus {
                     wordInd++;
                     totalWords++;
                 }
-                corpus[sentenceInd] = lineWords;
+                corpusSents[sentenceInd] = lineWords;
                 if (HAS_TAGS) corpusGoldTags[sentenceInd] = lineTags;
                 sentenceInd++;
             }
@@ -108,13 +108,24 @@ public class LineCorpus extends Corpus {
     }
 
     @Override
+    public void addPargDepFeats() {
+        System.err.println("Not implemented yet");
+        System.exit(-1);
+    }
+
+    @Override
     public void writeTagged(int[] classes, String outFile) throws IOException {
         String outLine = "";
         int wordInd = 0;
         BufferedWriter out = FileUtils.createOut(outFile);
-        for (int[] sentence : corpus) {
+        for (int[] sentence : corpusSents) {
             for (int ignored : sentence) {
-                outLine += int2Word(words[wordInd]) + "/" + classes[wordInd] + " ";
+                String wordStr = wordsCoder.decode(words[wordInd]);
+                int clusterId;
+                if (o.isIgnorePunct() && wordStr.matches("\\p{Punct}"))
+                    clusterId = -1;
+                else clusterId = classes[wordInd];
+                outLine += wordStr + "/" + clusterId + " ";
                 wordInd++;
             }
             out.write(outLine.trim() + "\n");

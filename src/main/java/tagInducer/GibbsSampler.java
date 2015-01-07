@@ -426,12 +426,9 @@ public class GibbsSampler {
 	 */
 	public int[] getTokenAssignments(boolean best) {
 		int[] tokenClusters = new int[words.length];
-		if (best)
-			for (int word=0; word<words.length; word++)
-				tokenClusters[word] = bestZ[words[word]];
-		else
-			for (int word=0; word<words.length; word++)
-				tokenClusters[word] = z[words[word]];
+		int[] currentZ = (best) ? bestZ : z;
+		for (int word=0; word<words.length; word++)
+			tokenClusters[word] = currentZ[words[word]];
 		return tokenClusters;
 	}
 }

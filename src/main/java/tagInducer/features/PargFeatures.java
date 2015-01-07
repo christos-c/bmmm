@@ -1,7 +1,7 @@
 package tagInducer.features;
 
 import utils.FileUtils;
-import utils.MapUtils;
+import utils.CollectionUtils;
 import utils.StringCoder;
 
 import java.io.BufferedReader;
@@ -24,7 +24,7 @@ public class PargFeatures {
 
         // TODO Apply a threshold
         for (int feat : pargFeatCounts.keySet()) {
-            int sum = MapUtils.sumMap(pargFeatCounts.get(feat));
+            int sum = CollectionUtils.sumMap(pargFeatCounts.get(feat));
         }
         // TODO Add the NULL feature at the end
         int[][] features = new int[numWordTypes][pargFeatCounts.size()+1];

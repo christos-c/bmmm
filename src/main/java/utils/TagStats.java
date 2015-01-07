@@ -40,8 +40,8 @@ public class TagStats {
 			}
 		}
 		//Sort the maps
-		List<String> tagsSorted = MapUtils.sortByValueList(tagFreq);
-		List<String> clustSorted = MapUtils.sortByValueList(clustFreq);
+		List<String> tagsSorted = CollectionUtils.sortByValueList(tagFreq);
+		List<String> clustSorted = CollectionUtils.sortByValueList(clustFreq);
 		//Start with a blank column title
 		out.write("\t");
 		//First print the column titles
@@ -100,7 +100,7 @@ public class TagStats {
 		}
 		for (String key:clusters.keySet()){
 			//Sort the map to word frequency
-			List<String> list = MapUtils.sortByValueList(clusters.get(key));
+			List<String> list = CollectionUtils.sortByValueList(clusters.get(key));
 			if (list.size()>topN) list = list.subList(0, topN);
 			out.write(key+"\t"+list+System.getProperty("line.separator"));
 		}
@@ -127,7 +127,7 @@ public class TagStats {
 				else freqMap.put(tag, 1);
 			}
 		}
-		freqMap = MapUtils.sortByValueMap(freqMap);
+		freqMap = CollectionUtils.sortByValueMap(freqMap);
 		for (String key:freqMap.keySet()){
 			out.write(key+"\t"+freqMap.get(key)+System.getProperty("line.separator"));
 		}
@@ -217,7 +217,7 @@ public class TagStats {
 			}
 			else tmpMap.put(tag, 1);
 		}
-		return MapUtils.sortByValueList(tmpMap).get(0);
+		return CollectionUtils.sortByValueList(tmpMap).get(0);
 	}
 	
 	private String extractWord(String wordTag){

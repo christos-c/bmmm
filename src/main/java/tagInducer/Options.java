@@ -15,7 +15,7 @@ import java.util.Properties;
 public class Options {
 	private static Properties config = new Properties();
 	protected int numClasses, numContextFeats, numIters;
-	protected boolean printLog, extendedMorph, alignUseLRContext;
+	protected boolean printLog, extendedMorph, alignUseLRContext, ignorePunct;
 	protected String morphMethod, morphFile, pargFile,
 	alignmentsFile, corpusFileName, outFile, depsFile,
 	alignLangFileRegexp, corpusLang;
@@ -54,6 +54,8 @@ public class Options {
 		temp = config.getProperty("NUM_CONTEXT_FEATS", "100");
 		numContextFeats = Integer.parseInt(temp);
 		printLog = Boolean.parseBoolean(config.getProperty("PRINT_LOG"));
+
+		ignorePunct = Boolean.parseBoolean(config.getProperty("IGNORE_PUNCT"));
 
 		// Dependency options
 		depsFile = config.getProperty("DEPS_FILE");
@@ -103,6 +105,7 @@ public class Options {
 	public String getLangFileRegexp() {return alignLangFileRegexp;}
 	public boolean useLRContextWords() {return alignUseLRContext;}
 	public String getCorpusLanguage() {return corpusLang;}
+	public boolean isIgnorePunct() {return ignorePunct;}
 
 	public static String usage() {
 		String usage = "Usage:\n";

@@ -2,6 +2,8 @@ package tagInducer.corpus;
 
 import tagInducer.Options;
 import tagInducer.features.DepFeatures;
+import tagInducer.features.PargDepFeatures;
+import utils.CollectionUtils;
 import utils.FileUtils;
 import utils.StringCoder;
 
@@ -19,7 +21,8 @@ public class CoNLLCorpus extends Corpus {
     private static final int wordIndex = 1;
     private static final int lemmaIndex = 2;
     private static final int finePosIndex = 3;
-    private static final int coarsePosIndex = 4;
+    // This was originally coarse-grained tags, now used to load the cluster IDs from a previous BMMM run
+    private static final int clusterIndex = 4;
     // XXX Assume that we have a corpus with UPOS
     private static final int uPosIndex = 5;
     private static final int featIndex = 6;
@@ -27,10 +30,13 @@ public class CoNLLCorpus extends Corpus {
     private static final int depTypeIndex = 8;
 
     /** One dimensional array of all word dependencies */
-    private int[] deps;
+    private int[][] corpusDeps;
 
-    private int[] uPos;
-    private StringCoder uPosCoder;
+    private int[][] corpusUPos;
+
+    private int[][] corpusClusters;
+
+    private StringCoder uPosCoder, clustersCoder;
 
     /**
      * Extracts a corpus from input
@@ -46,14 +52,16 @@ public class CoNLLCorpus extends Corpus {
     @Override
     protected void readCorpus() {
         uPosCoder = new StringCoder();
+        clustersCoder = new StringCoder();
         String file = o.getCorpusFileName();
         String line;
         int totalWords = 0;
 
-        List<List<Integer>> corpusSents = new ArrayList<>();
-        List<List<Integer>> corpusTags = new ArrayList<>();
-        List<List<Integer>> corpusDeps = new ArrayList<>();
-        List<List<Integer>> corpusUPos = new ArrayList<>();
+        List<List<Integer>> corpusSentsList = new ArrayList<>();
+        List<List<Integer>> corpusTagsList = new ArrayList<>();
+        List<List<Integer>> corpusDepsList = new ArrayList<>();
+        List<List<Integer>> corpusUPosList = new ArrayList<>();
+        List<List<Integer>> corpusClustersList = new ArrayList<>();
 
         try {
             BufferedReader in = FileUtils.createIn(file);
@@ -64,6 +72,7 @@ public class CoNLLCorpus extends Corpus {
             //A list to store the sentence fine-grained PoS tags
             List<Integer> sentTags = new ArrayList<>();
             List<Integer> sentUPosTags = new ArrayList<>();
+            List<Integer> sentClusters = new ArrayList<>();
             while ((line = in.readLine())!=null) {
                 //Read through each sentence
                 if (!line.isEmpty()) {
@@ -72,19 +81,24 @@ public class CoNLLCorpus extends Corpus {
                     sentWords.add(wordsCoder.encode(splits[wordIndex]));
                     totalWords++;
                     sentTags.add(tagsCoder.encode(splits[finePosIndex]));
-                    sentDeps.add(Integer.parseInt(splits[depIndex]));
+                    String depStr = splits[depIndex];
+                    if (depStr.equals("_")) sentDeps.add(-1);
+                    else sentDeps.add(Integer.parseInt(depStr));
                     sentUPosTags.add(uPosCoder.encode(splits[uPosIndex]));
+                    sentClusters.add(clustersCoder.encode((splits[clusterIndex])));
                     continue;
                 }
                 //At this point I have the list with each word and its head
-                corpusSents.add(sentWords);
-                corpusTags.add(sentTags);
-                corpusDeps.add(sentDeps);
-                corpusUPos.add(sentUPosTags);
+                corpusSentsList.add(new ArrayList<>(sentWords));
+                corpusTagsList.add(new ArrayList<>(sentTags));
+                corpusDepsList.add(new ArrayList<>(sentDeps));
+                corpusUPosList.add(new ArrayList<>(sentUPosTags));
+                corpusClustersList.add(new ArrayList<>(sentClusters));
                 sentTags.clear();
                 sentWords.clear();
                 sentDeps.clear();
                 sentUPosTags.clear();
+                sentClusters.clear();
             }
         }
         catch (IOException e) {
@@ -92,39 +106,25 @@ public class CoNLLCorpus extends Corpus {
             System.exit(-1);
         }
 
-        int sentNum = corpusSents.size();
+        // These are going to be populated by Corpus (line 67)
         words = new int[totalWords];
         goldTags = new int[totalWords];
-        deps = new int[totalWords];
-        uPos = new int[totalWords];
 
-        corpus = new int[sentNum][];
-        corpusGoldTags = new int[sentNum][];
-
-        int totalWordInd = 0;
-        for (int sentInd = 0; sentInd < corpusSents.size(); sentInd++) {
-            int sentSize = corpusSents.get(sentInd).size();
-            int[] sentWords = new int[sentSize];
-            int[] sentTags = new int[sentSize];
-            for (int i = 0; i < sentSize; i++) {
-                int word = corpusSents.get(sentInd).get(i);
-                int tag = corpusTags.get(sentInd).get(i);
-                words[totalWordInd] = word;
-                goldTags[totalWordInd] = tag;
-                deps[totalWordInd] = corpusDeps.get(sentInd).get(i);
-                uPos[totalWordInd] = corpusUPos.get(sentInd).get(i);
-                sentWords[i] = word;
-                sentTags[i] = tag;
-                totalWordInd++;
-            }
-            corpus[sentInd] = sentWords;
-            corpusGoldTags[sentInd] = sentTags;
-        }
+        corpusDeps = CollectionUtils.toArray2D(corpusDepsList);
+        corpusUPos = CollectionUtils.toArray2D(corpusUPosList);
+        corpusClusters = CollectionUtils.toArray2D(corpusClustersList);
+        corpusSents = CollectionUtils.toArray2D(corpusSentsList);
+        corpusGoldTags = CollectionUtils.toArray2D(corpusTagsList);
     }
 
     @Override
     public void addDepFeats() throws IOException {
         new DepFeatures(featureVectors, this);
+    }
+
+    @Override
+    public void addPargDepFeats() throws IOException {
+        new PargDepFeatures(this, o.getPargFile(), featureVectors);
     }
 
     @Override
@@ -135,29 +135,40 @@ public class CoNLLCorpus extends Corpus {
         // BMMM output format:
         // index  word    _    fineTag   clusterID   uPOS    _      dep      _
         // XXX Maybe we should reconstruct the original file
-        int wordInd = 0;
+        int totalWordInd = 0;
         BufferedWriter out = FileUtils.createOut(outFile);
-        for (int[] sentence : corpus) {
+        for (int sentInd = 0; sentInd < corpusSents.length; sentInd++) {
             String outLine = "";
-            for (int i = 0; i < sentence.length; i++) {
-                outLine += (i+1) + "\t";
-                outLine += wordsCoder.decode(words[wordInd]) + "\t";
+            for (int wordInd = 0; wordInd < corpusSents[sentInd].length; wordInd++) {
+                String wordStr = wordsCoder.decode(corpusSents[sentInd][wordInd]);
+                int clusterId;
+                if (o.isIgnorePunct() && wordStr.matches("\\p{Punct}"))
+                    clusterId = -1;
+                else clusterId = classes[totalWordInd];
+                outLine += (wordInd + 1) + "\t";
+                outLine += wordStr + "\t";
                 outLine += "_\t";
-                outLine += tagsCoder.decode(goldTags[wordInd]) + "\t";
-                outLine += classes[wordInd] + "\t";
-                outLine += uPosCoder.decode(uPos[wordInd]) + "\t";
+                outLine += tagsCoder.decode(corpusGoldTags[sentInd][wordInd]) + "\t";
+                outLine += clusterId + "\t";
+                outLine += uPosCoder.decode(corpusUPos[sentInd][wordInd]) + "\t";
                 outLine += "_\t";
-                outLine += deps[wordInd] + "\t";
+                outLine += corpusDeps[sentInd][wordInd]+"\t";
                 outLine += "_\t";
                 outLine += "\n";
-                wordInd++;
+                totalWordInd++;
             }
             out.write(outLine.trim() + "\n");
         }
         out.close();
     }
 
-    public int[] getDeps() {
-        return deps;
+    public int[][] getCorpusDeps() {
+        return corpusDeps;
+    }
+    public int[][] getCorpusClusters() {
+        return corpusClusters;
+    }
+    public int getNumClusters() {
+        return clustersCoder.size();
     }
 }

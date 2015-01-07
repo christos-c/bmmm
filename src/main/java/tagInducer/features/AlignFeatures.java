@@ -8,7 +8,7 @@ import java.util.Map;
 
 import tagInducer.Options;
 import utils.FileUtils;
-import utils.MapUtils;
+import utils.CollectionUtils;
 import utils.StringUtils;
 
 public class AlignFeatures {
@@ -49,7 +49,7 @@ public class AlignFeatures {
 				}
 			}
 			//Resort wrt frequency and prune
-			List<Integer> contextWordList= MapUtils.sortByValueList(wordFreq).subList(0, NUM_CONTEXT_WORDS);
+			List<Integer> contextWordList= CollectionUtils.sortByValueList(wordFreq).subList(0, NUM_CONTEXT_WORDS);
 			Map<Integer, Integer> contextWordMap = new HashMap<>();
 			int wordInd = 0;
 			for (int word:contextWordList){

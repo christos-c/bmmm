@@ -84,7 +84,7 @@ public class Inducer{
 		if (corpus.hasTags()) {
 			System.out.println();
 			corpus.setCorpusClusters(sampler.getFinalAssignment());
-			Evaluator eval = new Evaluator(corpus);
+			Evaluator eval = new Evaluator(corpus, false);
 			System.out.println("M-1: " + eval.manyToOne() + "\tVM: " + eval.VMeasure() + "\tVI: " + eval.VI());
 		}
 

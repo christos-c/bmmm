@@ -33,15 +33,23 @@ public class Evaluator {
 	private double tagEntropy;
 	private double mutualInformation;
 
-	public Evaluator(Corpus corpus) {
+	public Evaluator(Corpus corpus, boolean useUPOS) {
 		List<Integer> c = new ArrayList<>();
 		List<Integer> g = new ArrayList<>();
+
+		String[][] tags;
+		if (useUPOS) tags = corpus.getCorpusUPOS();
+		else tags = corpus.getCorpusGoldTags();
+		int[][] clusters = corpus.getCorpusClusters();
+
 		StringCoder goldTagCoder = new StringCoder();
+		StringCoder clusterCoder = new StringCoder();
 		String[][] sents = corpus.getCorpusOriginalSents();
 		for (int sentId = 0; sentId < sents.length; sentId++) {
 			for (int wordId = 0; wordId < sents[sentId].length; wordId++) {
-				c.add(corpus.getCorpusClusters()[sentId][wordId]);
-				g.add(goldTagCoder.encode(corpus.getCorpusGoldTags()[sentId][wordId]));
+				// Code the clusters as well since there is the case of -1 for punct
+				c.add(clusterCoder.encode(clusters[sentId][wordId]+""));
+				g.add(goldTagCoder.encode(tags[sentId][wordId]));
 			}
 		}
 		setData(CollectionUtils.toArray(c), CollectionUtils.toArray(g));
@@ -190,5 +198,23 @@ public class Evaluator {
 			}
 		}
 		return MI;
+	}
+
+	public static void main(String[] args) {
+		if (args.length < 1 || (args.length > 1 && !args[1].equals("-upos"))) {
+			String usage = "Usage:\n$>tagInducer.Evaluator <corpus> [-upos]\n" +
+					"\t-upos: Whether to compare against UPOS instead of fine-grained tags.";
+			System.err.println(usage);
+			System.exit(1);
+		}
+		else {
+			Corpus corpus = new Corpus(new OptionsCmdLine(new String[]{"-in", args[0]}));
+			Evaluator eval;
+			if (args.length > 1)
+				eval = new Evaluator(corpus, true);
+			else eval = new Evaluator(corpus, false);
+			System.out.println("M-1:\t" + eval.manyToOne() + "\nVM:\t" + eval.VMeasure() + "\nVI:\t" + eval.VI());
+		}
+
 	}
 }

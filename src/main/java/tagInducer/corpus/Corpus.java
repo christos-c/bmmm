@@ -234,6 +234,9 @@ public class Corpus {
 	public String[][] getCorpusGoldTags() {
 		return corpusGoldTags;
 	}
+	public String[][] getCorpusUPOS() {
+		return corpusUPos;
+	}
 	public int getNumClusters() {
 		return numClusters;
 	}

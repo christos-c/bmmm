@@ -82,7 +82,7 @@ public class Options {
 
 	public static String usage() {
 		String usage = "Usage:\n";
-		usage += "1)With configuration file: \n>tagInducer.Inducer config/bmmm.properties\n";
+		usage += "1)With configuration file: \n$>tagInducer.Inducer config/bmmm.properties\n";
 		usage += "\n";
 		usage += "2)With command line options:\n"+OptionsCmdLine.usage();
 		return usage;

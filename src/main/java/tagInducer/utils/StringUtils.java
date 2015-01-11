@@ -1,14 +1,28 @@
-package utils;
+package tagInducer.utils;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 
 public class StringUtils {
-	
-	private String tagDel = "/";
-	
+	private static String[] punctArray = new String[] {":", ",", ".", "?", "!", ";",
+			//  Unidcode for new String("»"), new String("«"), new String("“"), new String("”"),
+			String.valueOf(Character.toChars('\u00BB')),
+			String.valueOf(Character.toChars('\u00AB')),
+			String.valueOf(Character.toChars('\u201C')),
+			String.valueOf(Character.toChars('\u201D')),
+			"(", ")",
+			"{", "}",
+			"[", "]",
+			"<", ">",
+			"-", "--",
+			"``", "\'\'",
+			"\""};
+	private static List<String> punct = Arrays.asList(punctArray);
+
 	/**
 	 * Counts the number of sentences in a document
 	 */
@@ -27,28 +41,6 @@ public class StringUtils {
 	    return count;
 	}
 
-	public String extractWord(String wordTag){
-		String word;
-		//Bug catch
-		if (wordTag.equals("/")) return wordTag;
-		if (wordTag.split(tagDel).length>2) {
-			word = wordTag.split(tagDel)[0];
-			for (int i=1; i<wordTag.split(tagDel).length-1; i++){
-				word+=tagDel+wordTag.split(tagDel)[i];
-			}
-		}
-		else {
-			word = wordTag.split(tagDel)[0];
-		}
-		return word;
-	}
-	
-	public String extractTag(String wordTag){
-		if (wordTag.split(tagDel).length>2)
-			return wordTag.split(tagDel)[wordTag.split(tagDel).length-1];
-		else return wordTag.split(tagDel)[1];
-	}
-
 	public boolean checkString(String s, int len){
 		if (s.length() <= len) return false;
 		for (int ii = s.length(); ii --> 0; ) {
@@ -56,6 +48,10 @@ public class StringUtils {
 				return false;
 		}
 		return true;
+	}
+
+	public static boolean isPunct(String s) {
+		return punct.contains(s);
 	}
 
 	public String[] split(String str, int point){
@@ -79,12 +75,9 @@ public class StringUtils {
 	}
 
 	/** Helper function for pretty-printing progress (prints backspace characters) */
-	public String del(String toDel){
-		char bs = '\b';
+	public static String del(int numChars){
 		String d = "";
-		for (int i = 0; i < toDel.toCharArray().length; i++) {
-			d += bs;
-		}
+		for (int i = 0; i < numChars; i++) d += '\b';
 		return d;
 	}
 }

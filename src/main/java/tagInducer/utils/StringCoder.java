@@ -1,4 +1,4 @@
-package utils;
+package tagInducer.utils;
 
 import java.util.HashMap;
 import java.util.Map;

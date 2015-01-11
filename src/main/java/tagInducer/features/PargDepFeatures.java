@@ -1,51 +1,55 @@
 package tagInducer.features;
 
-import tagInducer.corpus.CoNLLCorpus;
-import utils.FileUtils;
-import utils.StringCoder;
+import tagInducer.corpus.Corpus;
+import tagInducer.utils.FileUtils;
+import tagInducer.utils.StringCoder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PargDepFeatures {
+public class PargDepFeatures implements Features {
 
 	/** A map from word types to dependency heads (with frequency) */
 	private Map<Integer, Map<Integer, Integer>> headDepMap;
 
-	public PargDepFeatures(CoNLLCorpus corpus, String pargFile, Map<String, int[][]> featureVectors)
-			throws IOException {
+	private final Corpus corpus;
+
+	public PargDepFeatures(Corpus corpus, String pargFile) throws IOException {
+		this.corpus = corpus;
 		//Read the features
-		if (headDepMap == null) readDepFeats(corpus, pargFile);
+		readDepFeats(pargFile);
+
+	}
+
+	@Override
+	public int[][] getFeatures() {
 		//Generate the features
 		//For the case of PoS tags as features
 		//Number of features = #unsupervised tags +1 for ROOT
-		int numTags = corpus.getNumClusters();
-		int numWordTypes = corpus.getNumTypes();
-		int[][] features = new int[numWordTypes][(numTags)+1];
+		int[][] features = new int[corpus.getNumTypes()][(corpus.getNumClusters())+1];
 		StringCoder headFreqMap = new StringCoder();
 
-		for (int wordType:headDepMap.keySet()){
+		for (int wordType : headDepMap.keySet()){
 			Map<Integer, Integer> heads = headDepMap.get(wordType);
-			for (int headType:heads.keySet()){
-				features[wordType][headFreqMap.encode(Integer.toString(headType))]+=heads.get(headType);
+			for (int headType : heads.keySet()){
+				features[wordType][headFreqMap.encode(Integer.toString(headType))] += heads.get(headType);
 			}
 		}
-		featureVectors.put("DEPS", features);
+		return features;
 	}
 
 	/**
 	 * Reads dependency data from a PARG file and uses the corpus to get the words and clusters
-	 * @param corpus The corpus containing words and clusters from a previous run
 	 * @param pargFile The coder from word strings to integers
 	 * @throws java.io.IOException
 	 */
-	public void readDepFeats(CoNLLCorpus corpus, String pargFile) throws IOException {
+	public void readDepFeats(String pargFile) throws IOException {
 		headDepMap = new HashMap<>();
 		BufferedReader in = FileUtils.createIn(pargFile);
 		String line;
-		int[][] corpusSents = corpus.getCorpusSents();
+		int[][] corpusSents = corpus.getCorpusProcessedSents();
 		// The clusters from a previous run of the BMMM (otherwise the coarse tags)
 		int[][] corpusTags = corpus.getCorpusClusters();
 		int sentInd = 0;

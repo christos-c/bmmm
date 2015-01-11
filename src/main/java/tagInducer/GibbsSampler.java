@@ -1,11 +1,8 @@
 package tagInducer;
 
-import tagInducer.corpus.Corpus;
-import utils.FileUtils;
-import utils.MathsUtils;
-import utils.StringUtils;
+import tagInducer.utils.MathsUtils;
+import tagInducer.utils.StringUtils;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,12 +10,9 @@ import java.util.Map;
 
 public class GibbsSampler {
 
-	/** The corpus data (bag of words) */
-	private int[] words;
+	/** The corpus data */
 	/** A map of features counts (MxF) for each feature type */
 	private Map<String, int[][]> features;
-	/** The gold-standard tags (if they exist) */
-	private int[] goldTags;
 	/** Vocabulary size (number of word types) */
 	private int numTypes;
 	private int numClasses;
@@ -33,13 +27,10 @@ public class GibbsSampler {
 	/** Total number of words assigned to cluster j */
 	private int[] typesPerClass;
 	private int ITERATIONS;
-	private boolean HAS_TAGS = false;
-	private Evaluator eval;
 	/** Counts of feature tokens per class (NxF) a specific feature type */
 	private Map<String, int[][]> featuresPerClass;
 	/** Counts total number of feature tokens in class (sum over all context words) */
 	private Map<String, int[]> sumClassFeatures;
-	private boolean printLog;
 	/** Annealing temperature schedule */
 	private double[] temperatures;
 	private static final int tempIncrements = 20;
@@ -49,26 +40,54 @@ public class GibbsSampler {
 	private static double HYPERSAMPLING_RATIO = 0.1;
 	private double bestClassLogP = Double.NEGATIVE_INFINITY;
 
-	private StringUtils s = new StringUtils();
 	private MathsUtils m = new MathsUtils();
-
-	private boolean outToSingleFile;
 
 	/**
 	 * Initialise the Gibbs sampler and configure the sampling options.
 	 */
-	public GibbsSampler(Corpus corpus, Options o) {
-		words = corpus.getWords();
-		features = corpus.getFeatures();
-		numTypes = corpus.getNumTypes();
-		if (corpus.hasTags()){
-			goldTags = corpus.getGoldTags();
-			HAS_TAGS = true;
-			eval = new Evaluator();
-		}
+	public GibbsSampler(Map<String, int[][]> features, int numTypes, Options o) {
+		this.features = features;
+		this.numTypes = numTypes;
 		this.numClasses = o.getNumClasses();
-		this.printLog = o.isPrintLog();
-		this.outToSingleFile = o.isOutputToSingleFile();
+	}
+
+	/**
+	 * Initialisation
+	 *
+	 * @param numClusters number of clusters
+	 */
+	public void initialise(int numClusters) {
+		typesPerClass = new int[numClusters];
+		featuresPerClass = new HashMap<>();
+		sumClassFeatures = new HashMap<>();
+
+		for (String featType:features.keySet()){
+			int[][] temp = new int[numClusters][features.get(featType)[0].length];
+			featuresPerClass.put(featType, temp);
+			int[] temp2 = new int[numClusters];
+			sumClassFeatures.put(featType, temp2);
+		}
+
+		z = new int[numTypes];
+		//For every word type
+		int cluster;
+		for (int type = 0; type < numTypes; type++) {
+			cluster = (int) (Math.random() * numClusters);
+			z[type] = cluster;
+
+			//Total number of words assigned to cluster j.
+			typesPerClass[cluster]++;
+
+			for (String featType:features.keySet()){
+				int clustSum = 0;
+				for (int feature = 0; feature < features.get(featType)[0].length; feature++){
+					int sum = features.get(featType)[type][feature];
+					featuresPerClass.get(featType)[cluster][feature] += sum;
+					clustSum += sum;
+				}
+				sumClassFeatures.get(featType)[cluster] += clustSum;
+			}
+		}
 	}
 
 	public void setRunParameters(int iters){
@@ -106,7 +125,7 @@ public class GibbsSampler {
 		}
 		int tempIndex = 0;
 		int iterIncrements = ITERATIONS / tempIncrements;
-		int start = ITERATIONS-(4* iterIncrements);
+		int start = ITERATIONS - (4 * iterIncrements);
 		for (int i = start; i < ITERATIONS; i++){
 			if (i % iterIncrements == 0) temperatures[i] = annealTemps[tempIndex++];
 			else temperatures[i] = temperatures[i-1];
@@ -121,13 +140,15 @@ public class GibbsSampler {
 	 * If appropriate, output summary for each run.
 	 * @throws IOException
 	 */
-	public void gibbs(String outDir) throws IOException {
+	public void gibbs() throws IOException {
 		double temperature;
 		int tempIndex = 0;
 
-		int i=0;
-		if (!printLog) System.out.print("Iter: " + i + "/" + ITERATIONS);
-		for (i = 1; i <= ITERATIONS; i++) {
+		int iter;
+		String spaces = "";
+		for (int i = 0; i < Integer.toString(ITERATIONS).length(); i++) spaces += " ";
+		System.out.print("Iter: " + spaces + "0/" + ITERATIONS);
+		for (iter = 1; iter <= ITERATIONS; iter++) {
 			temperature = temperatures[tempIndex++];
 
 			//**Main Loop**
@@ -140,7 +161,7 @@ public class GibbsSampler {
 			//END:**Main Loop**
 
 			// Do the hyperparameter sampling every 5 iterations
-			if (i % 5 == 0) {
+			if (iter % 5 == 0) {
 				//Calculate the log posterior
 				double prior = totalLogPrior(hyperClass);
 				double classLikelihood = totalLogLikelihood(hyperFeats);
@@ -153,23 +174,9 @@ public class GibbsSampler {
 				}
 				//Sample for class/feature hyperparameters
 				sampleHyper(temperature, classPosterior);
-
-				//If we are *not* outputting only the tagged file
-				if (!outToSingleFile) {
-					//Enable this for logging
-					writeLog(outDir, i, classPosterior, temperature);
-				}
 			}
-
-			if (!printLog) System.out.print(s.del(i + "/" + ITERATIONS)+i+"/"+ITERATIONS);
-		}
-		// Run an evaluation at the end
-		if (HAS_TAGS) {
-			System.out.println();
-			eval.setData(getTokenAssignments(true), goldTags);
-			double accuracy = eval.manyToOne();
-			double vm = eval.VMeasure();
-			System.out.println("M-1: "+accuracy+"\tVM: "+vm);
+			String iterStr = iter + "/" + ITERATIONS;
+			System.out.print(StringUtils.del(iterStr.length()) + iterStr);
 		}
 	}
 
@@ -228,50 +235,6 @@ public class GibbsSampler {
 			sumClassFeatures.get(featType)[cluster] += clustSum;
 		}
 		return cluster;
-	}
-
-	/**
-	 * Initialisation
-	 *
-	 * @param numClusters number of clusters
-	 */
-	public void initialise(int numClusters) {
-		typesPerClass = new int[numClusters];
-		featuresPerClass = new HashMap<>();
-		sumClassFeatures = new HashMap<>();
-
-		for (String featType:features.keySet()){
-			int[][] temp = new int[numClusters][features.get(featType)[0].length];
-			for (int[] feats:temp) Arrays.fill(feats, 0);
-			featuresPerClass.put(featType, temp);
-			int[] temp2 = new int[numClusters];
-			Arrays.fill(temp2, 0);
-			sumClassFeatures.put(featType, temp2);
-		}
-
-		z = new int[numTypes];
-		//For every word type
-		int cluster;
-		for (int type = 0; type < numTypes; type++) {
-			cluster = (int) (Math.random() * numClusters);
-			z[type] = cluster;
-
-			//Total number of words assigned to cluster j.
-			typesPerClass[cluster]++;
-
-			for (String featType:features.keySet()){
-				int clustSum = 0;
-				for (int feature = 0; feature < features.get(featType)[0].length; feature++){
-					int sum = features.get(featType)[type][feature];
-					featuresPerClass.get(featType)[cluster][feature] += sum;
-					clustSum += sum;
-				}
-				sumClassFeatures.get(featType)[cluster] += clustSum;
-			}
-		}
-		//Initialise bestZ
-		bestZ = new int[z.length];
-		System.arraycopy(z, 0, bestZ, 0, z.length );
 	}
 
 	/**
@@ -397,38 +360,11 @@ public class GibbsSampler {
 		return likelihood;
 	}
 
-	private void writeLog(String outDir, int i, double classPosterior, double temp) throws IOException{
-		BufferedWriter logOut = FileUtils.createOut(outDir + "/log", true);
-		if (HAS_TAGS){
-			eval.setData(getTokenAssignments(false), goldTags);
-			double accuracy = eval.manyToOne();
-			double vm = eval.VMeasure();
-			if (printLog) System.out.println(i+" - class_post: "+classPosterior+"\tM-1: "+accuracy+"\tVM: "+vm);
-			logOut.write(i + "\t" + classPosterior + "\t" + accuracy + "\t" + vm + "\t" + temp);
-		}
-		else {
-			if (printLog) System.out.println(i+" - class_post: "+classPosterior);
-			logOut.write(i + "\t" + classPosterior + "\t" + temp);
-		}
-		if (printLog) {
-			System.out.println("\thyperClass:"+hyperClass+"\thyperFeats"+hyperFeats);
-		}
-
-		logOut.write("\t" + hyperClass + "\t" + hyperFeats);
-		logOut.write("\n");
-		logOut.close();
+	public int[] getFinalAssignment() {
+		return bestZ;
 	}
 
-	/**
-	 * Use <code>z</code> and <code>words</code>
-	 * to assign a cluster to every token of a word type
-	 * @return The token-level assignments
-	 */
-	public int[] getTokenAssignments(boolean best) {
-		int[] tokenClusters = new int[words.length];
-		int[] currentZ = (best) ? bestZ : z;
-		for (int word=0; word<words.length; word++)
-			tokenClusters[word] = currentZ[words[word]];
-		return tokenClusters;
+	public double getBestClassLogP() {
+		return bestClassLogP;
 	}
 }

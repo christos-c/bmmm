@@ -1,8 +1,9 @@
 package tagInducer.features;
 
-import utils.FileUtils;
-import utils.CollectionUtils;
-import utils.StringCoder;
+import tagInducer.corpus.Corpus;
+import tagInducer.utils.FileUtils;
+import tagInducer.utils.CollectionUtils;
+import tagInducer.utils.StringCoder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,22 +13,28 @@ import java.util.Map;
 /**
  * A set of features derived from the predicate-argument output (.parg files) of the CCG parser.
  */
-public class PargFeatures {
+public class PargFeatures implements Features {
 
-    public PargFeatures(StringCoder wordsCoder, Map<String, int[][]> featureVectors, String pargFile)
-            throws IOException {
+    private final Map<Integer, Map<Integer, Integer>> pargFeatCounts;
+
+    private final Corpus corpus;
+
+    public PargFeatures(Corpus corpus, String pargFile) throws IOException {
+        this.corpus = corpus;
         // Read the features
         // A map from parg feature type to word-type to count
-        Map<Integer, Map<Integer, Integer>> pargFeatCounts = readPargFeats(wordsCoder, pargFile);
-
-        int numWordTypes = wordsCoder.size();
+        pargFeatCounts = readPargFeats(pargFile);
 
         // TODO Apply a threshold
         for (int feat : pargFeatCounts.keySet()) {
             int sum = CollectionUtils.sumMap(pargFeatCounts.get(feat));
         }
+
+    }
+
+    public int[][] getFeatures() {
         // TODO Add the NULL feature at the end
-        int[][] features = new int[numWordTypes][pargFeatCounts.size()+1];
+        int[][] features = new int[corpus.getNumTypes()][pargFeatCounts.size()+1];
 
         for (int pargFeat : pargFeatCounts.keySet()){
             Map<Integer, Integer> wordFeatCounts = pargFeatCounts.get(pargFeat);
@@ -35,11 +42,10 @@ public class PargFeatures {
                 features[word][pargFeat] += wordFeatCounts.get(word);
             }
         }
-        featureVectors.put("PARG", features);
+        return features;
     }
 
-    private Map<Integer, Map<Integer, Integer>> readPargFeats(StringCoder wordsCoder, String pargFile)
-            throws IOException {
+    private Map<Integer, Map<Integer, Integer>> readPargFeats(String pargFile) throws IOException {
         // The index of the dependent word
         int wordInd = 4;
         int featCatInd = 2;
@@ -55,8 +61,8 @@ public class PargFeatures {
             String[] splits = line.split("\t");
             String wordStr = splits[wordInd];
             // Do not add features for words that don't exist
-            if (!wordsCoder.exists(wordStr)) continue;
-            int word = wordsCoder.encode(wordStr);
+            int word = corpus.getWordType(wordStr);
+            if (word == -1) continue;
             // The feature is the category_slot string
             String featStr = splits[featCatInd] + "_" + splits[featSlotInd];
             int feat = pargFeatCoder.encode(featStr);

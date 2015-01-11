@@ -1,4 +1,4 @@
-package utils;
+package tagInducer.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,6 +65,14 @@ public class CollectionUtils {
 		return array;
  	}
 
+	public static String[] toStringArray(List<String> list) {
+		String[] array = new String[list.size()];
+		for (int i = 0; i < list.size(); i++) {
+			array[i] = list.get(i);
+		}
+		return array;
+	}
+
 	public static int[][] toArray2D(List<List<Integer>> list) {
 		int[][] array = new int[list.size()][];
 		for (int i = 0; i < list.size(); i++) {
@@ -74,5 +82,24 @@ public class CollectionUtils {
 			}
 		}
 		return array;
+	}
+
+	public static String[][] toStringArray2D(List<List<String>> list) {
+		String[][] array = new String[list.size()][];
+		for (int i = 0; i < list.size(); i++) {
+			array[i] = new String[list.get(i).size()];
+			for (int j = 0; j < list.get(i).size(); j++) {
+				array[i][j] = list.get(i).get(j);
+			}
+		}
+		return array;
+	}
+
+	public static int countUnique(int[][] array) {
+		List<Integer> items = new ArrayList<>();
+		for (int[] ints : array)
+			for (int i : ints)
+				if (!items.contains(i)) items.add(i);
+		return items.size();
 	}
 }

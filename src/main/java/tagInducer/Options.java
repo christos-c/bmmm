@@ -15,11 +15,8 @@ import java.util.Properties;
 public class Options {
 	private static Properties config = new Properties();
 	protected int numClasses, numContextFeats, numIters;
-	protected boolean printLog, extendedMorph, alignUseLRContext, ignorePunct;
-	protected String morphMethod, morphFile, pargFile,
-	alignmentsFile, corpusFileName, outFile, depsFile,
-	alignLangFileRegexp, corpusLang;
-	protected String[] alignLangs;
+	protected boolean extendedMorph, ignorePunct, lowercase;
+	protected String morphFile, pargFile, corpusFileName, outFile;
 	protected List<String> featureTypes = new ArrayList<>();
 	
 	public Options(){}
@@ -34,18 +31,16 @@ public class Options {
 			System.err.println("Cannot read configuration file " + configFile);
 			System.exit(1);
 		}
+		outFile = config.getProperty("OUT_FILE");
 		corpusFileName = config.getProperty("CORPUS");
 		numClasses = Integer.parseInt(config.getProperty("NUM_CLUSTERS"));
 		temp = config.getProperty("FEATURE_TYPES");
 		if (temp != null){
 			if (temp.contains("[")){
 				String[] types = temp.substring(1, temp.length()-1).split("\\s+");
-				for (String type : types) {
-					//TODO Check for valid feature types
-					featureTypes.add(type.toUpperCase());
-				}
+				for (String type : types) parseFeatureType(type);
 			}
-			else featureTypes.add(temp.toUpperCase());
+			else parseFeatureType(temp);
 		}
 		
 		temp = config.getProperty("SAMPLE_ITERS");
@@ -53,59 +48,37 @@ public class Options {
 		// Default is 100 most frequent words
 		temp = config.getProperty("NUM_CONTEXT_FEATS", "100");
 		numContextFeats = Integer.parseInt(temp);
-		printLog = Boolean.parseBoolean(config.getProperty("PRINT_LOG"));
 
 		ignorePunct = Boolean.parseBoolean(config.getProperty("IGNORE_PUNCT"));
-
-		// Dependency options
-		depsFile = config.getProperty("DEPS_FILE");
+		lowercase = Boolean.parseBoolean(config.getProperty("LOWERCASE"));
 
 		// PARG options
 		pargFile = config.getProperty("PARG_FILE");
 		
 		// Morphology options
-		morphMethod = config.getProperty("MORPH_METHOD");
 		morphFile = config.getProperty("MORPH_FILE");
 		extendedMorph = Boolean.parseBoolean(config.getProperty("EXTENDED_MORPH"));
-		
-		// Alignment options
-		alignmentsFile = config.getProperty("ALIGNMENTS_FILE");
-		temp = config.getProperty("OUT_FILE");
-		if (temp != null) outFile = temp;
-		temp = config.getProperty("ALIGNMENT_LANGS");
-		if (temp != null){
-			if (temp.contains("[")){
-				alignLangs = temp.substring(1, temp.length()-1).split("\\s+");
-			}
-			else {
-				alignLangs = new String[1];
-				alignLangs[0] = temp;
-			}
-		}
-		alignLangFileRegexp = config.getProperty("LANG_FILE_REGEXP");
-		alignUseLRContext = Boolean.parseBoolean(config.getProperty("USE_LR_CONTEXT"));
-		corpusLang = config.getProperty("CORPUS_LANG");
 	}
 	
 	public int getNumClasses() {return numClasses;}
 	public int getNumContextFeats() {return numContextFeats;}
-	public boolean isPrintLog() {return printLog;}
 	public boolean isExtendedMorph() {return extendedMorph;}
-	public String getMorphMethod() {return morphMethod;}
 	public String getMorphFile() {return morphFile;}
-	public String getDepsFile() {return depsFile;}
 	public String getPargFile() {return pargFile;}
-	public String getAlignmentsFile() {return alignmentsFile;}
 	public String getCorpusFileName() {return corpusFileName;}
-	public String[] getAlignLangs() {return alignLangs;}
 	public int getIters() {return numIters;}
 	public List<String> getFeatureTypes() {return featureTypes;}
-	public boolean isOutputToSingleFile() {return outFile != null;}
 	public String getOutFile() {return outFile;}
-	public String getLangFileRegexp() {return alignLangFileRegexp;}
-	public boolean useLRContextWords() {return alignUseLRContext;}
-	public String getCorpusLanguage() {return corpusLang;}
 	public boolean isIgnorePunct() {return ignorePunct;}
+	public boolean isLowercase(){return lowercase;}
+
+	public void setLowercase(boolean lowercase) {
+		this.lowercase = lowercase;
+	}
+
+	public void setIgnorePunct(boolean ignorePunct) {
+		this.ignorePunct = ignorePunct;
+	}
 
 	public static String usage() {
 		String usage = "Usage:\n";
@@ -127,6 +100,10 @@ public class Options {
 		str += "\n";
 		str += "Num Classes:\t"+numClasses;
 		str += "\n";
+		str += "Ignore Punct.:\t"+ignorePunct;
+		str += "\n";
+		str += "Lowercasing:\t"+lowercase;
+		str += "\n";
 		if (featureTypes.contains(FeatureNames.CONTEXT)) {
 			str += "  ## Context Parameters:\n";
 			str += "  --Cont. Words:\t"+numContextFeats;
@@ -134,7 +111,7 @@ public class Options {
 		}
 		if (featureTypes.contains(FeatureNames.DEPS)) {
 			str += "  ## Dependency Parameters:\n";
-			str += "  --Deps File:\t"+depsFile;
+			str += "  --Deps File:\t"+corpusFileName;
 			str += "\n";
 		}
 		if (featureTypes.contains(FeatureNames.PARG)) {
@@ -142,32 +119,44 @@ public class Options {
 			str += "  --Parg File:\t"+pargFile;
 			str += "\n";
 		}
+		if (featureTypes.contains(FeatureNames.PARGDEPS)) {
+			str += "  ## PARG-DEP Parameters:\n";
+			str += "  --Parg File:\t"+pargFile;
+			str += "\n";
+		}
 		if (featureTypes.contains(FeatureNames.MORPH)) {
 			str += "  ## Morphology Parameters:\n";
-			str += "  --Morph Method:\t"+morphMethod;
-			str += "\n";
 			str += "  --Morph File:\t"+morphFile;
 			str += "\n";
 			str += "  --Ext. Morph:\t"+extendedMorph;
 			str += "\n";
 		}
-		if (featureTypes.contains(FeatureNames.ALIGNS)) {
-			str += "  ## Alignment Parameters:\n";
-			str += "  --Aligns File:\t"+alignmentsFile;
-			str += "\n";
-			str += "  --Corpus Lang:\t"+corpusLang;
-			str += "\n";
-			str += "  --Align Langs:\t[";
-			for (String lang:alignLangs) str += lang+" ";
-			str = str.trim()+"]";
-			str += "\n";
-			str += "  --Lang Corpora:\t[";
-			for (String lang:alignLangs) str += alignLangFileRegexp.replaceAll("\\*", lang)+" ";
-			str = str.trim()+"]";
-			str += "\n";
-			str += "  --LR context:\t"+alignUseLRContext;
-			str += "\n";
-		}
 		return str;
+	}
+
+	/**
+	 * Processes the raw feature string and adds the relevant feature type
+	 * @param featString can be 'deps', 'morph', 'parg', 'parg-deps'
+	 */
+	private void parseFeatureType(String featString) {
+		switch (featString) {
+			case "context":
+				featureTypes.add(FeatureNames.CONTEXT);
+				break;
+			case "morph":
+				featureTypes.add(FeatureNames.MORPH);
+				break;
+			case "deps":
+				featureTypes.add(FeatureNames.DEPS);
+				break;
+			case "parg":
+				featureTypes.add(FeatureNames.PARG);
+				break;
+			case "parg-deps":
+				featureTypes.add(FeatureNames.PARGDEPS);
+				break;
+			default:
+				System.err.println("Feature type: " + featString + " not recognised");
+		}
 	}
 }

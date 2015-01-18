@@ -52,11 +52,12 @@ public class PargDepFeatures implements Features {
 		int[][] corpusSents = corpus.getCorpusProcessedSents();
 		// The clusters from a previous run of the BMMM (otherwise the coarse tags)
 		int[][] corpusTags = corpus.getCorpusClusters();
-		int sentInd = 0;
+		int sentInd = -1;
 		while ((line = in.readLine())!=null) {
 			//Read through each sentence
-			if (!line.startsWith("<")) {
-				String[] splits = line.split("\t");
+			if (line.startsWith("<s>")) sentInd++;
+			else if (!line.startsWith("<")) {
+				String[] splits = line.split("\\s+");
 				// *** IMPORTANT ***
 				// We assume that the sentences/tokens mach exactly to the ones in the CoNLL corpus
 				int headIndex = Integer.parseInt(splits[1]);
@@ -68,7 +69,6 @@ public class PargDepFeatures implements Features {
 				wordType = corpusSents[sentInd][headIndex];
 				headTag = corpusTags[sentInd][wordIndex];
 				addDep(wordType, headTag);
-				sentInd++;
 			}
 		}
 	}

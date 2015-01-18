@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class StringUtils {
-	private static String[] punctArray = new String[] {":", ",", ".", "?", "!", ";",
+	private static String[] punctArray = new String[] {":", ",", ".", "?", "!", ";", "...", "…",
 			//  Unidcode for new String("»"), new String("«"), new String("“"), new String("”"),
 			String.valueOf(Character.toChars('\u00BB')),
 			String.valueOf(Character.toChars('\u00AB')),
@@ -20,6 +20,7 @@ public class StringUtils {
 			"<", ">",
 			"-", "--",
 			"``", "\'\'",
+			"`", "'",
 			"\""};
 	private static List<String> punct = Arrays.asList(punctArray);
 

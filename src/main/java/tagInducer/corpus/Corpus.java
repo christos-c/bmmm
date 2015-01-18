@@ -29,6 +29,8 @@ public class Corpus {
 
 	private String[][] corpusUPos;
 
+	private String[][] corpusCCGCats;
+
 	/**
 	 * Can be either the clusters from a previous run (used during dep. feature extraction)
 	 * or the by-sentence array of induced clusters from this run (used when writing the corpus)
@@ -87,6 +89,7 @@ public class Corpus {
 		List<List<String>> corpusTagsList = new ArrayList<>();
 		List<List<Integer>> corpusDepsList = new ArrayList<>();
 		List<List<String>> corpusUPosList = new ArrayList<>();
+		List<List<String>> corpusCCGCatList = new ArrayList<>();
 		List<List<Integer>> corpusClustersList = new ArrayList<>();
 
 		try {
@@ -98,6 +101,8 @@ public class Corpus {
 			//A list to store the sentence fine-grained PoS tags
 			List<String> sentTags = new ArrayList<>();
 			List<String> sentUPosTags = new ArrayList<>();
+			// A list to store the CCG cats (hijacked from morph-feats column)
+			List<String> sentCCGCats = new ArrayList<>();
 			// A list to store the sentence clusters from a previous run (or coarse tags if 1st run)
 			List<Integer> sentClusters = new ArrayList<>();
 			while ((line = in.readLine()) != null) {
@@ -110,6 +115,7 @@ public class Corpus {
 					if (depStr.equals("_")) sentDeps.add(-1);
 					else sentDeps.add(Integer.parseInt(depStr));
 					sentUPosTags.add(splits[uPosIndex]);
+					sentCCGCats.add(splits[featIndex]);
 					String clusterStr = splits[clusterIndex];
 					if (!clusterStr.matches("[0-9]+")) sentClusters.add(-1);
 					else sentClusters.add(Integer.parseInt(splits[clusterIndex]));
@@ -120,11 +126,13 @@ public class Corpus {
 				corpusTagsList.add(new ArrayList<>(sentTags));
 				corpusDepsList.add(new ArrayList<>(sentDeps));
 				corpusUPosList.add(new ArrayList<>(sentUPosTags));
+				corpusCCGCatList.add(new ArrayList<>(sentCCGCats));
 				corpusClustersList.add(new ArrayList<>(sentClusters));
 				sentTags.clear();
 				sentWords.clear();
 				sentDeps.clear();
 				sentUPosTags.clear();
+				sentCCGCats.clear();
 				sentClusters.clear();
 			}
 		}
@@ -136,6 +144,7 @@ public class Corpus {
 		HAS_TAGS = !corpusTagsList.get(0).get(0).equals("_");
 		corpusDeps = CollectionUtils.toArray2D(corpusDepsList);
 		corpusUPos = CollectionUtils.toStringArray2D(corpusUPosList);
+		corpusCCGCats = CollectionUtils.toStringArray2D(corpusCCGCatList);
 		corpusClusters = CollectionUtils.toArray2D(corpusClustersList);
 		corpusOriginalSents = CollectionUtils.toStringArray2D(corpusSentsList);
 		corpusGoldTags = CollectionUtils.toStringArray2D(corpusTagsList);
@@ -163,7 +172,10 @@ public class Corpus {
 	public void setCorpusClusters(int[] currentZ) {
 		for (int i = 0; i < corpusProcessedSents.length; i++) {
 			for (int j = 0; j < corpusProcessedSents[i].length; j++) {
-				corpusClusters[i][j] = currentZ[corpusProcessedSents[i][j]];
+				String wordStr = corpusOriginalSents[i][j];
+				if (o.isIgnorePunct() && StringUtils.isPunct(wordStr))
+					corpusClusters[i][j] = -1;
+				else corpusClusters[i][j] = currentZ[corpusProcessedSents[i][j]];
 			}
 		}
 		numClusters = CollectionUtils.countUnique(corpusClusters);
@@ -189,9 +201,7 @@ public class Corpus {
 				outLine += wordStr + "\t";
 				outLine += "_\t";
 				outLine += corpusGoldTags[sentInd][wordInd] + "\t";
-				if (o.isIgnorePunct() && StringUtils.isPunct(wordStr))
-					outLine += "-1\t";
-				else outLine += corpusClusters[sentInd][wordInd] + "\t";
+				outLine += corpusClusters[sentInd][wordInd] + "\t";
 				outLine += corpusUPos[sentInd][wordInd] + "\t";
 				outLine += "_\t";
 				outLine += corpusDeps[sentInd][wordInd]+"\t";
@@ -237,6 +247,7 @@ public class Corpus {
 	public String[][] getCorpusUPOS() {
 		return corpusUPos;
 	}
+	public String[][] getCorpusCCGCats() { return corpusCCGCats; }
 	public int getNumClusters() {
 		return numClusters;
 	}

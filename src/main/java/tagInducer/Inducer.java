@@ -63,6 +63,10 @@ public class Inducer{
 			featureVectors.put(FeatureNames.PARGDEPS, features.getFeatures());
 		}
 
+		for (String feat : featureVectors.keySet()) {
+			System.out.println(feat + "\t" + featureVectors.get(feat)[0].length);
+		}
+
 		//Construct and configure the sampler
 		sampler = new GibbsSampler(featureVectors, corpus.getNumTypes(), o);
 		sampler.initialise(o.getNumClasses());
@@ -80,11 +84,12 @@ public class Inducer{
 		sampler.gibbs();
 		long end = System.currentTimeMillis();
 
+		corpus.setCorpusClusters(sampler.getFinalAssignment());
+
 		// Run an evaluation at the end
 		if (corpus.hasTags()) {
 			System.out.println();
-			corpus.setCorpusClusters(sampler.getFinalAssignment());
-			Evaluator eval = new Evaluator(corpus, false);
+			Evaluator eval = new Evaluator(corpus);
 			System.out.println("M-1: " + eval.manyToOne() + "\tVM: " + eval.VMeasure() + "\tVI: " + eval.VI());
 		}
 

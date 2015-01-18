@@ -33,13 +33,26 @@ public class Evaluator {
 	private double tagEntropy;
 	private double mutualInformation;
 
-	public Evaluator(Corpus corpus, boolean useUPOS) {
+	public Evaluator(Corpus corpus) {
+		this(corpus, "fine");
+	}
+
+	public Evaluator(Corpus corpus, String goldType) {
 		List<Integer> c = new ArrayList<>();
 		List<Integer> g = new ArrayList<>();
 
 		String[][] tags;
-		if (useUPOS) tags = corpus.getCorpusUPOS();
-		else tags = corpus.getCorpusGoldTags();
+		switch (goldType) {
+			case "upos":
+				tags = corpus.getCorpusUPOS();
+				break;
+			case "ccg":
+				tags = corpus.getCorpusCCGCats();
+				break;
+			default:
+				tags = corpus.getCorpusGoldTags();
+				break;
+		}
 		int[][] clusters = corpus.getCorpusClusters();
 
 		StringCoder goldTagCoder = new StringCoder();
@@ -49,6 +62,48 @@ public class Evaluator {
 			for (int wordId = 0; wordId < sents[sentId].length; wordId++) {
 				// Code the clusters as well since there is the case of -1 for punct
 				c.add(clusterCoder.encode(clusters[sentId][wordId]+""));
+				g.add(goldTagCoder.encode(tags[sentId][wordId]));
+			}
+		}
+		setData(CollectionUtils.toArray(c), CollectionUtils.toArray(g));
+	}
+
+	public Evaluator(Corpus corpus, String goldType, String fromType) {
+		List<Integer> c = new ArrayList<>();
+		List<Integer> g = new ArrayList<>();
+
+		String[][] tags, clusters;
+		switch (goldType) {
+			case "upos":
+				tags = corpus.getCorpusUPOS();
+				break;
+			case "ccg":
+				tags = corpus.getCorpusCCGCats();
+				break;
+			default:
+				tags = corpus.getCorpusGoldTags();
+				break;
+		}
+		switch (fromType) {
+			case "fromUPOS":
+				clusters = corpus.getCorpusUPOS();
+				break;
+			case "fromFine":
+				clusters = corpus.getCorpusGoldTags();
+				break;
+			default:
+				clusters = null;
+				break;
+		}
+		assert clusters != null;
+
+		StringCoder goldTagCoder = new StringCoder();
+		StringCoder clusterCoder = new StringCoder();
+		String[][] sents = corpus.getCorpusOriginalSents();
+		for (int sentId = 0; sentId < sents.length; sentId++) {
+			for (int wordId = 0; wordId < sents[sentId].length; wordId++) {
+				// Code the clusters as well since there is the case of -1 for punct
+				c.add(clusterCoder.encode(clusters[sentId][wordId]));
 				g.add(goldTagCoder.encode(tags[sentId][wordId]));
 			}
 		}
@@ -201,18 +256,27 @@ public class Evaluator {
 	}
 
 	public static void main(String[] args) {
-		if (args.length < 1 || (args.length > 1 && !args[1].equals("-upos"))) {
-			String usage = "Usage:\n$>tagInducer.Evaluator <corpus> [-upos]\n" +
-					"\t-upos: Whether to compare against UPOS instead of fine-grained tags.";
+		if (args.length < 1 || (args.length > 1 &&
+				!(args[1].equals("-upos") || args[1].equals("-ccg") || args[1].equals("-fine")))) {
+			String usage = "Usage:\n$>tagInducer.Evaluator <corpus> [-upos|-ccg|-fine] [-fromUPOS|-fromFine]\n" +
+					"\t-upos: Compare against UPOS instead of fine-grained tags.\n" +
+					"\t-ccg: Compare against CCG-cats instead of fine-grained tags.\n" +
+					"\t-fine: Compare against fine-grained tags (only use when using -fromX).\n\n" +
+					"\t-fromUPOS: Compare UPOS against the first category (either -fine or -ccg).\n" +
+					"\t-fromFine: Compare fine-grained against the first category (either -upos or -ccg).";
 			System.err.println(usage);
 			System.exit(1);
 		}
 		else {
 			Corpus corpus = new Corpus(new OptionsCmdLine(new String[]{"-in", args[0]}));
 			Evaluator eval;
-			if (args.length > 1)
-				eval = new Evaluator(corpus, true);
-			else eval = new Evaluator(corpus, false);
+			if (args.length == 2) {
+				eval = new Evaluator(corpus, args[1].substring(1));
+			}
+			else if (args.length > 2) {
+				eval = new Evaluator(corpus, args[1].substring(1), args[2].substring(1));
+			}
+			else eval = new Evaluator(corpus);
 			System.out.println("M-1:\t" + eval.manyToOne() + "\nVM:\t" + eval.VMeasure() + "\nVI:\t" + eval.VI());
 		}
 

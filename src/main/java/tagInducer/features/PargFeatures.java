@@ -58,7 +58,7 @@ public class PargFeatures implements Features {
         while ((line = in.readLine())!=null) {
             //Read through each sentence
             if (line.startsWith("<"))  continue;
-            String[] splits = line.split("\t");
+            String[] splits = line.split("\\s+");
             String wordStr = splits[wordInd];
             // Do not add features for words that don't exist
             int word = corpus.getWordType(wordStr);

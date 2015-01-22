@@ -59,8 +59,12 @@ public class Inducer{
 			featureVectors.put(FeatureNames.PARG, features.getFeatures());
 		}
 		if (featureTypes.contains(FeatureNames.PARGDEPS)) {
-			Features features = new PargDepFeatures(corpus, o.getPargFile());
+			Features features = new PargDepFeatures(corpus, o.getPargFile(), o.getNumContextFeats());
 			featureVectors.put(FeatureNames.PARGDEPS, features.getFeatures());
+		}
+		if (featureTypes.contains(FeatureNames.CCGCATS)) {
+			Features features = new CCGCatFeatures(corpus);
+			featureVectors.put(FeatureNames.CCGCATS, features.getFeatures());
 		}
 
 		for (String feat : featureVectors.keySet()) {

@@ -114,13 +114,17 @@ public class Options {
 			str += "  --Deps File:\t"+corpusFileName;
 			str += "\n";
 		}
+		if (featureTypes.contains(FeatureNames.CCGCATS)) {
+			str += "  ## CCG-CATS Parameters:\n";
+			str += "\n";
+		}
 		if (featureTypes.contains(FeatureNames.PARG)) {
 			str += "  ## PARG Parameters:\n";
 			str += "  --Parg File:\t"+pargFile;
 			str += "\n";
 		}
 		if (featureTypes.contains(FeatureNames.PARGDEPS)) {
-			str += "  ## PARG-DEP Parameters:\n";
+			str += "  ## PARG-DEPS Parameters:\n";
 			str += "  --Parg File:\t"+pargFile;
 			str += "\n";
 		}
@@ -154,6 +158,9 @@ public class Options {
 				break;
 			case "parg-deps":
 				featureTypes.add(FeatureNames.PARGDEPS);
+				break;
+			case "ccg-cats":
+				featureTypes.add(FeatureNames.CCGCATS);
 				break;
 			default:
 				System.err.println("Feature type: " + featString + " not recognised");

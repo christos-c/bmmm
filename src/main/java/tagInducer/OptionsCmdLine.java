@@ -39,6 +39,9 @@ public class OptionsCmdLine extends Options{
 					if (!checkNext(args, i)) pargFile = args[++i];
 					featureTypes.add(FeatureNames.PARG);
 					break;
+				case "-ccg-cats":
+					featureTypes.add(FeatureNames.CCGCATS);
+					break;
 				case "-parg-deps":
 					if (!checkNext(args, i)) pargFile = args[++i];
 					featureTypes.add(FeatureNames.PARGDEPS);
@@ -88,6 +91,8 @@ public class OptionsCmdLine extends Options{
 		usage += "## Feature options ##";
 		usage += "\n\t";
 		usage += "-deps:\tUse dependency features (read from input corpus)";
+		usage += "\n\t";
+		usage += "-ccg-cats:\tUse CCG category features (read from input corpus)";
 		usage += "\n\t";
 		usage += "-parg <file>:\tUse CCG PARG features";
 		usage += "\n\t";

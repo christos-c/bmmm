@@ -1,12 +1,13 @@
 package tagInducer.features;
 
 import tagInducer.corpus.Corpus;
+import tagInducer.utils.CollectionUtils;
 import tagInducer.utils.FileUtils;
-import tagInducer.utils.StringCoder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PargDepFeatures implements Features {
@@ -16,10 +17,28 @@ public class PargDepFeatures implements Features {
 
 	private final Corpus corpus;
 
-	public PargDepFeatures(Corpus corpus, String pargFile) throws IOException {
+	private final int numContextWords;
+
+	public PargDepFeatures(Corpus corpus, String pargFile, int numContextWords) throws IOException {
 		this.corpus = corpus;
+		this.numContextWords = numContextWords;
+
+		//Create a list of feature words (N most frequent original words)
+		Map<Integer, Integer> wordFreq = new HashMap<>();
+		//Get the word counts
+		for (int[] sent : corpus.getCorpusProcessedSents()) {
+			for (int word : sent) {
+				if (wordFreq.containsKey(word)) wordFreq.put(word, wordFreq.get(word) + 1);
+				else wordFreq.put(word, 1);
+			}
+		}
+		//Resort wrt frequency and prune
+		// Check in case we have less than numContextFeatWords in the corpus
+		numContextWords = Math.min(numContextWords, wordFreq.size());
+		List<Integer> frequentWordList = CollectionUtils.sortByValueList(wordFreq).subList(0, numContextWords);
+
 		//Read the features
-		readDepFeats(pargFile);
+		readDepFeats(pargFile, frequentWordList);
 
 	}
 
@@ -27,14 +46,13 @@ public class PargDepFeatures implements Features {
 	public int[][] getFeatures() {
 		//Generate the features
 		//For the case of PoS tags as features
-		//Number of features = #unsupervised tags +1 for ROOT
-		int[][] features = new int[corpus.getNumTypes()][(corpus.getNumClusters())+1];
-		StringCoder headFreqMap = new StringCoder();
+		//Number of features = #most frequent words +1 for NULL
+		int[][] features = new int[corpus.getNumTypes()][numContextWords+1];
 
 		for (int wordType : headDepMap.keySet()){
 			Map<Integer, Integer> heads = headDepMap.get(wordType);
 			for (int headType : heads.keySet()){
-				features[wordType][headFreqMap.encode(Integer.toString(headType))] += heads.get(headType);
+				features[wordType][headType] += heads.get(headType);
 			}
 		}
 		return features;
@@ -45,7 +63,7 @@ public class PargDepFeatures implements Features {
 	 * @param pargFile The coder from word strings to integers
 	 * @throws java.io.IOException
 	 */
-	public void readDepFeats(String pargFile) throws IOException {
+	public void readDepFeats(String pargFile, List<Integer> freqWordList) throws IOException {
 		headDepMap = new HashMap<>();
 		BufferedReader in = FileUtils.createIn(pargFile);
 		String line;
@@ -63,12 +81,16 @@ public class PargDepFeatures implements Features {
 				int headIndex = Integer.parseInt(splits[1]);
 				int wordIndex = Integer.parseInt(splits[0]);
 				int wordType = corpusSents[sentInd][wordIndex];
-				int headTag = corpusTags[sentInd][headIndex];
-				addDep(wordType, headTag);
+				int headType = corpusSents[sentInd][headIndex];
+				if (freqWordList.contains(headType))
+					addDep(wordType, freqWordList.indexOf(headType));
+				else addDep(wordType, freqWordList.size());
 				//Now for the reverse dependency (comment out for gold deps)
 				wordType = corpusSents[sentInd][headIndex];
-				headTag = corpusTags[sentInd][wordIndex];
-				addDep(wordType, headTag);
+				headType = corpusTags[sentInd][wordIndex];
+				if (freqWordList.contains(headType))
+					addDep(wordType, freqWordList.indexOf(headType));
+				else addDep(wordType, freqWordList.size());
 			}
 		}
 	}

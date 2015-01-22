@@ -255,4 +255,8 @@ public class Corpus {
 	public int getNumSentences() {
 		return corpusOriginalSents.length;
 	}
+
+	public String getWordString(int i) {
+		return wordTypeCoder.decode(i);
+	}
 }

@@ -10,4 +10,5 @@ public class FeatureNames {
     public static final String ALIGNS = "ALIGNS";
     public static final String PARG = "PARG";
     public static final String PARGDEPS = "PARG-DEPS";
+    public static final String CCGCATS = "CCG-CATS";
 }

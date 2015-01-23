@@ -35,6 +35,9 @@ public class OptionsCmdLine extends Options{
 				case "-deps":
 					featureTypes.add(FeatureNames.DEPS);
 					break;
+				case "-undir":
+					undirDeps = true;
+					break;
 				case "-parg":
 					if (!checkNext(args, i)) pargFile = args[++i];
 					featureTypes.add(FeatureNames.PARG);
@@ -63,6 +66,7 @@ public class OptionsCmdLine extends Options{
 		numIters = 500;
 		ignorePunct = false;
 		lowercase = false;
+		undirDeps = false;
 		extendedMorph = true;
 		featureTypes.add(FeatureNames.CONTEXT);
 	}
@@ -90,13 +94,17 @@ public class OptionsCmdLine extends Options{
 		usage += "\n\t";
 		usage += "## Feature options ##";
 		usage += "\n\t";
-		usage += "-deps:\tUse dependency features (read from input corpus)";
+		usage += "-deps:\t\tUse dependency features (read from input corpus)";
+		usage += "\n\t";
+		usage += "[-undir:\tAllow undirected dependency features (default=false)]";
 		usage += "\n\t";
 		usage += "-ccg-cats:\tUse CCG category features (read from input corpus)";
 		usage += "\n\t";
 		usage += "-parg <file>:\tUse CCG PARG features";
 		usage += "\n\t";
-		usage += "-parg-deps <file>:\tUse CCG PARG dependency features";
+		usage += "-parg-deps <regexp>:\tUse CCG PARG dependency features";
+		usage += "\n\t";
+		usage += "[-undir:\tAllow undirected dependency features (default=false)]";
 		usage += "\n\t";
 		usage += "-morph <file>:\tUse morfessor features";
 		usage += "\n\t";

@@ -43,7 +43,7 @@ public class Inducer{
 			featureVectors.put(FeatureNames.CONTEXT, features.getFeatures());
 		}
 		if (featureTypes.contains(FeatureNames.DEPS)) {
-			Features features = new DepFeatures(corpus);
+			Features features = new DepFeatures(corpus, o.isUndirDeps());
 			featureVectors.put(FeatureNames.DEPS, features.getFeatures());
 		}
 		if (featureTypes.contains(FeatureNames.MORPH)) {
@@ -59,7 +59,7 @@ public class Inducer{
 			featureVectors.put(FeatureNames.PARG, features.getFeatures());
 		}
 		if (featureTypes.contains(FeatureNames.PARGDEPS)) {
-			Features features = new PargDepFeatures(corpus, o.getPargFile(), o.getNumContextFeats());
+			Features features = new PargDepFeatures(corpus, o.getPargFile(), o.getNumContextFeats(), o.isUndirDeps());
 			featureVectors.put(FeatureNames.PARGDEPS, features.getFeatures());
 		}
 		if (featureTypes.contains(FeatureNames.CCGCATS)) {

@@ -1,13 +1,8 @@
 package tagInducer.utils;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
+
+import java.io.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -26,12 +21,6 @@ public class FileUtils {
 		return new BufferedReader(inStream);
 	}
 
-	public static BufferedWriter createOut(String fileStr, boolean append) throws IOException {
-		FileOutputStream fis = new FileOutputStream(new File(fileStr), append);
-		OutputStreamWriter inStream = new OutputStreamWriter(fis, enc);
-		return new BufferedWriter(inStream);
-	}
-	
 	public static BufferedWriter createOut(String fileStr) throws IOException {
 		FileOutputStream fos = new FileOutputStream(new File(fileStr), false);
 		OutputStreamWriter outStream;
@@ -45,5 +34,18 @@ public class FileUtils {
 
 	public static String strip(String file) {
 		return file.substring(0,file.lastIndexOf('.'));
+	}
+
+	public static File[] listFilesMatching(String regExp) {
+		String dirString = ".";
+		String pargRegExp = regExp;
+		if (regExp.contains("/")) {
+			dirString = regExp.substring(0, regExp.lastIndexOf('/'));
+			pargRegExp = regExp.substring(regExp.lastIndexOf('/') + 1, regExp.length());
+		}
+		pargRegExp = pargRegExp.replace("?", ".?").replace("*", ".*?");
+		File dir = new File(dirString);
+		FileFilter fileFilter = new RegexFileFilter(pargRegExp);
+		return dir.listFiles(fileFilter);
 	}
 }

@@ -1,10 +1,12 @@
 package tagInducer;
 
 import tagInducer.features.FeatureNames;
+import tagInducer.utils.FileUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -15,7 +17,7 @@ import java.util.Properties;
 public class Options {
 	private static Properties config = new Properties();
 	protected int numClasses, numContextFeats, numIters;
-	protected boolean extendedMorph, ignorePunct, lowercase;
+	protected boolean extendedMorph, ignorePunct, lowercase, undirDeps;
 	protected String morphFile, pargFile, corpusFileName, outFile;
 	protected List<String> featureTypes = new ArrayList<>();
 	
@@ -51,6 +53,7 @@ public class Options {
 
 		ignorePunct = Boolean.parseBoolean(config.getProperty("IGNORE_PUNCT"));
 		lowercase = Boolean.parseBoolean(config.getProperty("LOWERCASE"));
+		undirDeps = Boolean.parseBoolean(config.getProperty("UNDIR_DEPS"));
 
 		// PARG options
 		pargFile = config.getProperty("PARG_FILE");
@@ -71,6 +74,7 @@ public class Options {
 	public String getOutFile() {return outFile;}
 	public boolean isIgnorePunct() {return ignorePunct;}
 	public boolean isLowercase(){return lowercase;}
+	public boolean isUndirDeps(){return undirDeps;}
 
 	public void setLowercase(boolean lowercase) {
 		this.lowercase = lowercase;
@@ -113,6 +117,8 @@ public class Options {
 			str += "  ## Dependency Parameters:\n";
 			str += "  --Deps File:\t"+corpusFileName;
 			str += "\n";
+			str += "  --Use undir:\t"+undirDeps;
+			str += "\n";
 		}
 		if (featureTypes.contains(FeatureNames.CCGCATS)) {
 			str += "  ## CCG-CATS Parameters:\n";
@@ -125,7 +131,9 @@ public class Options {
 		}
 		if (featureTypes.contains(FeatureNames.PARGDEPS)) {
 			str += "  ## PARG-DEPS Parameters:\n";
-			str += "  --Parg File:\t"+pargFile;
+			str += "  --Parg File:\t"+ Arrays.toString(FileUtils.listFilesMatching(pargFile));
+			str += "\n";
+			str += "  --Use undir:\t"+undirDeps;
 			str += "\n";
 		}
 		if (featureTypes.contains(FeatureNames.MORPH)) {

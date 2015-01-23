@@ -13,13 +13,16 @@ public class DepFeatures implements Features {
 
 	private final Corpus corpus;
 
+	private final boolean undirDeps;
+
 	/**
 	 * Adds (gold-standard) dependencies as features.
 	 * For each word token use the dependency head as feature and sum over types.
 	 * All the dependency features are over (gold-standard) head PoS tags.
 	 */
-	public DepFeatures(Corpus corpus) {
+	public DepFeatures(Corpus corpus, boolean undirDeps) {
 		this.corpus = corpus;
+		this.undirDeps = undirDeps;
 		//Read the features
 		readDepFeats();
 	}
@@ -57,9 +60,11 @@ public class DepFeatures implements Features {
 				} else {
 					int head = corpusClusters[sentIndex][headIndex - 1];
 					addDep(corpusSents[sentIndex][wordIndex], head);
-					//Now for the reverse dependency (comment out for gold deps)
-					head = corpusClusters[sentIndex][wordIndex];
-					addDep(corpusSents[sentIndex][headIndex - 1], head);
+					if (undirDeps) {
+						//Now for the reverse dependency (comment out for gold deps)
+						head = corpusClusters[sentIndex][wordIndex];
+						addDep(corpusSents[sentIndex][headIndex - 1], head);
+					}
 				}
 			}
 		}

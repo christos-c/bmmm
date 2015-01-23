@@ -5,6 +5,7 @@ import tagInducer.utils.CollectionUtils;
 import tagInducer.utils.FileUtils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -19,9 +20,13 @@ public class PargDepFeatures implements Features {
 
 	private final int numContextWords;
 
-	public PargDepFeatures(Corpus corpus, String pargFile, int numContextWords) throws IOException {
+	private final boolean undirDeps;
+
+	public PargDepFeatures(Corpus corpus, String pargFile, int numContextWords, boolean undirDeps) throws IOException {
 		this.corpus = corpus;
 		this.numContextWords = numContextWords;
+		this.undirDeps = undirDeps;
+		this.headDepMap = new HashMap<>();
 
 		//Create a list of feature words (N most frequent original words)
 		Map<Integer, Integer> wordFreq = new HashMap<>();
@@ -38,8 +43,9 @@ public class PargDepFeatures implements Features {
 		List<Integer> frequentWordList = CollectionUtils.sortByValueList(wordFreq).subList(0, numContextWords);
 
 		//Read the features
-		readDepFeats(pargFile, frequentWordList);
-
+		for (File file : FileUtils.listFilesMatching(pargFile)) {
+			readDepFeats(file.getAbsolutePath(), frequentWordList);
+		}
 	}
 
 	@Override
@@ -64,7 +70,6 @@ public class PargDepFeatures implements Features {
 	 * @throws java.io.IOException
 	 */
 	public void readDepFeats(String pargFile, List<Integer> freqWordList) throws IOException {
-		headDepMap = new HashMap<>();
 		BufferedReader in = FileUtils.createIn(pargFile);
 		String line;
 		int[][] corpusSents = corpus.getCorpusProcessedSents();
@@ -85,12 +90,14 @@ public class PargDepFeatures implements Features {
 				if (freqWordList.contains(headType))
 					addDep(wordType, freqWordList.indexOf(headType));
 				else addDep(wordType, freqWordList.size());
-				//Now for the reverse dependency (comment out for gold deps)
-				wordType = corpusSents[sentInd][headIndex];
-				headType = corpusTags[sentInd][wordIndex];
-				if (freqWordList.contains(headType))
-					addDep(wordType, freqWordList.indexOf(headType));
-				else addDep(wordType, freqWordList.size());
+				if (undirDeps) {
+					//Now for the reverse dependency
+					wordType = corpusSents[sentInd][headIndex];
+					headType = corpusTags[sentInd][wordIndex];
+					if (freqWordList.contains(headType))
+						addDep(wordType, freqWordList.indexOf(headType));
+					else addDep(wordType, freqWordList.size());
+				}
 			}
 		}
 	}

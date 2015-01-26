@@ -56,6 +56,9 @@ public class OptionsCmdLine extends Options{
 				case "-noContext":
 					featureTypes.remove(FeatureNames.CONTEXT);
 					break;
+				case "-api-key":
+					if (!checkNext(args, i)) apiKeyFile = args[++i];
+					break;
 			}
 		}
 	}
@@ -91,6 +94,8 @@ public class OptionsCmdLine extends Options{
 		usage += "-ignorePunct:\tUse cluster ID -1 for all punctuation marks (default=false)";
 		usage += "\n\t";
 		usage += "-lowercase:\tLowercase the word types to be clustered, but not the actual corpus (default=false)";
+		usage += "\n\t";
+		usage += "-api-key <file>:\tSend a notification to android devices using this API key file";
 		usage += "\n\t";
 		usage += "## Feature options ##";
 		usage += "\n\t";

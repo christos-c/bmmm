@@ -18,7 +18,7 @@ public class Options {
 	private static Properties config = new Properties();
 	protected int numClasses, numContextFeats, numIters;
 	protected boolean extendedMorph, ignorePunct, lowercase, undirDeps;
-	protected String morphFile, pargFile, corpusFileName, outFile;
+	protected String morphFile, pargFile, corpusFileName, outFile, apiKeyFile;
 	protected List<String> featureTypes = new ArrayList<>();
 	
 	public Options(){}
@@ -61,6 +61,8 @@ public class Options {
 		// Morphology options
 		morphFile = config.getProperty("MORPH_FILE");
 		extendedMorph = Boolean.parseBoolean(config.getProperty("EXTENDED_MORPH"));
+
+		apiKeyFile = config.getProperty("API_KEY");
 	}
 	
 	public int getNumClasses() {return numClasses;}
@@ -75,6 +77,7 @@ public class Options {
 	public boolean isIgnorePunct() {return ignorePunct;}
 	public boolean isLowercase(){return lowercase;}
 	public boolean isUndirDeps(){return undirDeps;}
+	public String getAPIKeyFile(){return apiKeyFile;}
 
 	public void setLowercase(boolean lowercase) {
 		this.lowercase = lowercase;

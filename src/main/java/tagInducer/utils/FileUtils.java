@@ -43,7 +43,7 @@ public class FileUtils {
 			dirString = regExp.substring(0, regExp.lastIndexOf('/'));
 			pargRegExp = regExp.substring(regExp.lastIndexOf('/') + 1, regExp.length());
 		}
-		pargRegExp = pargRegExp.replace("?", ".?").replace("*", ".*?");
+		//pargRegExp = pargRegExp.replace("?", ".?").replace("*", ".*?");
 		File dir = new File(dirString);
 		FileFilter fileFilter = new RegexFileFilter(pargRegExp);
 		return dir.listFiles(fileFilter);

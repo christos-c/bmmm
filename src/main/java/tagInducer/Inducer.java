@@ -2,6 +2,7 @@ package tagInducer;
 
 import tagInducer.corpus.Corpus;
 import tagInducer.features.*;
+import tagInducer.utils.NotificationSender;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -90,11 +91,13 @@ public class Inducer{
 
 		corpus.setCorpusClusters(sampler.getFinalAssignment());
 
+		String evalScores = null;
 		// Run an evaluation at the end
 		if (corpus.hasTags()) {
 			System.out.println();
 			Evaluator eval = new Evaluator(corpus);
-			System.out.println("M-1: " + eval.manyToOne() + "\tVM: " + eval.VMeasure() + "\tVI: " + eval.VI());
+			evalScores = "M-1: " + eval.manyToOne() + "\tVM: " + eval.VMeasure() + "\tVI: " + eval.VI();
+			System.out.println(evalScores);
 		}
 
 		// Output the final logLikelihood
@@ -102,6 +105,15 @@ public class Inducer{
 
 		//Output the tagged file
 		corpus.writeTagged(o.getOutFile());
+
+		//Send a notification to android (if configured)
+		if (o.getAPIKeyFile() != null) {
+			String message = "Clustering took " + ((end-start) / 60000) + " minutes";
+			if (evalScores != null)
+				message += "\n" + evalScores;
+			NotificationSender notificationSender = new NotificationSender(o.getAPIKeyFile());
+			notificationSender.notify(message);
+		}
 		return (end - start);
 	}
 

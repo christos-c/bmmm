@@ -84,5 +84,20 @@ public class SentenceObj {
         return list;
     }
 
+    /**
+     * Creates a new WordObj and populates the values
+     */
+    public void addWord(String word, String lemma, String pos, String upos, String cluster) {
+        if (words == null)
+            words = new WordObj[1];
+        else
+            words = Arrays.copyOf(words, words.length + 1);
+        words[words.length-1] = new WordObj();
+        words[words.length-1].word  = word;
+        words[words.length-1].lemma = lemma;
+        words[words.length-1].pos   = pos;
+        words[words.length-1].upos  = upos;
+        words[words.length-1].cluster   = cluster;
+    }
 
 }

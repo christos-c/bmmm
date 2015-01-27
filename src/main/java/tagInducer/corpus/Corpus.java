@@ -1,6 +1,7 @@
 package tagInducer.corpus;
 
 import tagInducer.Options;
+import tagInducer.corpus.json.SentenceObj;
 import tagInducer.utils.CollectionUtils;
 import tagInducer.utils.FileUtils;
 import tagInducer.utils.StringCoder;
@@ -184,6 +185,11 @@ public class Corpus {
 	 * @param outFile The name of the output file
 	 */
 	public void writeTagged(String outFile) throws IOException {
+		if (outFile.toLowerCase().contains("json")) {
+			writeTaggedJSON(outFile);
+			return;
+		}
+
 		// Original output format:
 		//   0      1      2      3          4         5      6      7       8
 		// index  word  lemma  fineTag  [coarseTag]  uPOS  [feat]  [dep]  [depType]
@@ -207,6 +213,23 @@ public class Corpus {
 				outLine += "\n";
 			}
 			out.write(outLine + "\n");
+		}
+		out.close();
+	}
+
+	public void writeTaggedJSON(String outFile) throws IOException {
+		BufferedWriter out = FileUtils.createOut(outFile);
+		for (int sentInd = 0; sentInd < corpusOriginalSents.length; sentInd++) {
+			SentenceObj sentence = new SentenceObj();
+			for (int wordInd = 0; wordInd < corpusOriginalSents[sentInd].length; wordInd++) {
+				sentence.addWord(
+						corpusOriginalSents[sentInd][wordInd],		// Word
+						null,																			// Lemma
+						corpusGoldTags[sentInd][wordInd],					// Gold POS Tag
+						corpusUPos[sentInd][wordInd],							// Gold UPOS Tag
+						corpusClusters[sentInd][wordInd] + "");		// Induced Cluster
+			}
+			out.write(sentence + "\n");
 		}
 		out.close();
 	}

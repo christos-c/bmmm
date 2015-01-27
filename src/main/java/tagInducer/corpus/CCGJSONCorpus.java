@@ -21,7 +21,7 @@ import java.util.List;
  * @author christod
  */
 public class CCGJSONCorpus extends Corpus {
-    private static final GsonBuilder gsonBuilder = new GsonBuilder();
+    public static final GsonBuilder gsonBuilder = new GsonBuilder();
     private static final Gson gsonReader = new Gson();
 
     private static List<SentenceObj> sentences;
@@ -67,10 +67,8 @@ public class CCGJSONCorpus extends Corpus {
         }
     }
 
-    public void getPargFeatures() {
-        for (SentenceObj sent : sentences) {
-            //TODO something
-        }
+    public List<SentenceObj> sentences() {
+        return sentences;
     }
 
     @Override

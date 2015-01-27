@@ -1,45 +1,32 @@
 package tagInducer.corpus.json;
 
-import com.google.gson.GsonBuilder;
+import tagInducer.corpus.CCGJSONCorpus;
+
+import java.util.Arrays;
 
 /**
- * A syntactic parse in AUTO, PARG and CoNLL formats with a score or probability
+ * A syntactic parse in AUTO format with a score or probability
  */
 public class SynParObj {
-    private static final GsonBuilder gsonBuilder = new GsonBuilder();
+  public String synPar;
+  public PARGDep[] depParse;
+  public CoNLLDep[] conllParse;
+  public double score;
 
-    public final String synPar;
-    public final String depParse;
-    public final String conllParse;
-    final double score;
+  @Override
+  public String toString() {
+    return CCGJSONCorpus.gsonBuilder.disableHtmlEscaping().create().toJson(this);
+  }
 
-    /**
-     * Simple parse constructor
-     *
-     * @param AUTOparse   AUTO Parse
-     * @param PARGdeps    PARG dependencies
-     * @param CONLLdeps   CoNLL dependencies
-     * @param probability Probability of the parse
-     */
-    public SynParObj(String AUTOparse, String PARGdeps, String CONLLdeps, double probability) {
-        synPar = AUTOparse;
-        depParse = PARGdeps;
-        conllParse = CONLLdeps;
-        score = probability;
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (!SynParObj.class.isInstance(o))
+      return false;
+    SynParObj other = (SynParObj)o;
+    return (synPar == null ? other.synPar == null : synPar.equals(other.synPar))
+        && (depParse == null ? other.depParse == null : Arrays.equals(depParse, other.depParse))
+        && (conllParse == null ? other.conllParse == null : Arrays.equals(conllParse, other.conllParse))
+        && score == score;
+  }
 
-    @Override
-    public String toString() {
-        return gsonBuilder.disableHtmlEscaping().create().toJson(this);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (!SynParObj.class.isInstance(o))
-            return false;
-        SynParObj other = (SynParObj) o;
-        return (synPar == null ? other.synPar == null : synPar.equals(other.synPar))
-                && (depParse == null ? other.depParse == null : depParse.equals(other.depParse))
-                && score == score;
-    }
-}
+  }

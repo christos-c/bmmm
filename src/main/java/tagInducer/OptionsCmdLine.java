@@ -14,6 +14,9 @@ public class OptionsCmdLine extends Options{
 		setDefaults();
 		for (int i = 0; i < args.length; i++) {
 			switch (args[i]) {
+				case "-json":
+					if (!checkNext(args, i)) jsonFileName = args[++i];
+					break;
 				case "-in":
 					if (!checkNext(args, i)) corpusFileName = args[++i];
 					break;

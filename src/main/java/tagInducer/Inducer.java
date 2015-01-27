@@ -1,5 +1,6 @@
 package tagInducer;
 
+import tagInducer.corpus.CCGJSONCorpus;
 import tagInducer.corpus.Corpus;
 import tagInducer.features.*;
 import tagInducer.utils.NotificationSender;
@@ -29,7 +30,10 @@ public class Inducer{
 		System.out.println(o);
 		List<String> featureTypes = o.getFeatureTypes();
 
-		corpus = new Corpus(o);
+		if (o.getJSONFileName() != null)
+			corpus = new CCGJSONCorpus(o);
+		else
+			corpus = new Corpus(o);
 
 		System.out.println("Corpus:\t" + corpus.getNumSentences() + " sents\t" +
 				corpus.getNumTokens() + " tokens\t" + corpus.getNumTypes() + " types.");

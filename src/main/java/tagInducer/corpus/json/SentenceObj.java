@@ -60,7 +60,7 @@ public class SentenceObj {
     public List<Integer> getClusters() {
         List<Integer> list = new ArrayList<>();
         for (WordObj word : words) {
-            list.add(Integer.parseInt(word.cluster));
+            list.add(word.cluster == null ? -1 : Integer.parseInt(word.cluster));
         }
         return list;
     }
@@ -68,17 +68,21 @@ public class SentenceObj {
     public List<String> getCCGCats() {
         List<String> list = new ArrayList<>();
         for (WordObj word : words) {
-            list.add(word.cat);
+            list.add(word.cat == null ? "" : word.cat);
         }
         return list;
     }
 
     public List<Integer> getCoNLLHeads() {
-        List<Integer> list = new ArrayList<>();
-        for (SynParObj synPar : synPars) {
-            //TODO something like:
-            //list.add(Integer.parseInt(synPar.conllParse.head));
+        if (synPars == null || synPars[0].conllParse == null) // Return list of -1
+            return new ArrayList<Integer>() {{  for(int i = 0; i < words.length; ++i) add(-1);  }};
+
+        ArrayList<Integer> list = new ArrayList<>();
+        for (CoNLLDep dep : synPars[0].conllParse) {
+            list.set(dep.index, dep.head);
         }
         return list;
     }
+
+
 }

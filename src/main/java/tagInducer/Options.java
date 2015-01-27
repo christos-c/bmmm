@@ -18,7 +18,7 @@ public class Options {
 	private static Properties config = new Properties();
 	protected int numClasses, numContextFeats, numIters;
 	protected boolean extendedMorph, ignorePunct, lowercase, undirDeps;
-	protected String morphFile, pargFile, corpusFileName, outFile, apiKeyFile;
+	protected String morphFile, pargFile, corpusFileName, jsonFileName, outFile, apiKeyFile;
 	protected List<String> featureTypes = new ArrayList<>();
 	
 	public Options(){}
@@ -71,6 +71,7 @@ public class Options {
 	public String getMorphFile() {return morphFile;}
 	public String getPargFile() {return pargFile;}
 	public String getCorpusFileName() {return corpusFileName;}
+	public String getJSONFileName() {return jsonFileName;}
 	public int getIters() {return numIters;}
 	public List<String> getFeatureTypes() {return featureTypes;}
 	public String getOutFile() {return outFile;}

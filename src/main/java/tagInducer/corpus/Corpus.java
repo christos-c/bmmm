@@ -16,34 +16,34 @@ public class Corpus {
 	protected int numTokens, numTypes, numClusters;
 
 	/** The full corpus (arrays of sentences) */
-	private String[][] corpusOriginalSents;
+	protected String[][] corpusOriginalSents;
 
 	/** The full corpus but with pre-processed sentences (passed through a StringCoder) **/
-	private int[][] corpusProcessedSents;
+	protected int[][] corpusProcessedSents;
 
 	/** The full corpus tags (arrays of sentences) */
-	private String[][] corpusGoldTags;
+	protected String[][] corpusGoldTags;
 
 	/** The full corpus dependencies */
-	private int[][] corpusDeps;
+	protected int[][] corpusDeps;
 
-	private String[][] corpusUPos;
+	protected String[][] corpusUPos;
 
-	private String[][] corpusCCGCats;
+	protected String[][] corpusCCGCats;
 
 	/**
 	 * Can be either the clusters from a previous run (used during dep. feature extraction)
 	 * or the by-sentence array of induced clusters from this run (used when writing the corpus)
 	 */
-	private int[][] corpusClusters;
+	protected int[][] corpusClusters;
 
 	/** Map from integers to word types and reverse*/
 	private StringCoder wordTypeCoder = new StringCoder();
 
 	/** Whether the corpus has gold-standard tag annotation */
-	private boolean HAS_TAGS;
+	protected boolean HAS_TAGS;
 
-	private Options o;
+	protected Options o;
 
 	private static final int wordIndex = 1;
 	private static final int lemmaIndex = 2;
@@ -82,9 +82,6 @@ public class Corpus {
 	}
 
 	protected void readCorpus() {
-		String file = o.getCorpusFileName();
-		String line;
-
 		List<List<String>> corpusSentsList = new ArrayList<>();
 		List<List<String>> corpusTagsList = new ArrayList<>();
 		List<List<Integer>> corpusDepsList = new ArrayList<>();
@@ -93,7 +90,7 @@ public class Corpus {
 		List<List<Integer>> corpusClustersList = new ArrayList<>();
 
 		try {
-			BufferedReader in = FileUtils.createIn(file);
+			BufferedReader in = FileUtils.createIn(o.getCorpusFileName());
 			//A list to store the sentence words
 			List<String> sentWords = new ArrayList<>();
 			//A list to store the sentence head dependencies
@@ -105,6 +102,7 @@ public class Corpus {
 			List<String> sentCCGCats = new ArrayList<>();
 			// A list to store the sentence clusters from a previous run (or coarse tags if 1st run)
 			List<Integer> sentClusters = new ArrayList<>();
+			String line;
 			while ((line = in.readLine()) != null) {
 				//Read through each sentence
 				if (!line.isEmpty()) {

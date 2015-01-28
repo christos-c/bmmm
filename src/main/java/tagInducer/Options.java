@@ -72,6 +72,7 @@ public class Options {
 	public String getPargFile() {return pargFile;}
 	public String getCorpusFileName() {return corpusFileName;}
 	public String getJSONFileName() {return jsonFileName;}
+	public void setJSONFileName(String filename) {jsonFileName = filename;}
 	public int getIters() {return numIters;}
 	public List<String> getFeatureTypes() {return featureTypes;}
 	public String getOutFile() {return outFile;}

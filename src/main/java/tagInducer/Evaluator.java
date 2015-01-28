@@ -1,5 +1,6 @@
 package tagInducer;
 
+import tagInducer.corpus.CCGJSONCorpus;
 import tagInducer.corpus.Corpus;
 import tagInducer.utils.CollectionUtils;
 import tagInducer.utils.StringCoder;
@@ -268,7 +269,14 @@ public class Evaluator {
 			System.exit(1);
 		}
 		else {
-			Corpus corpus = new Corpus(new OptionsCmdLine(new String[]{"-in", args[0]}));
+			OptionsCmdLine options = new OptionsCmdLine(new String[]{"-in", args[0]});
+			Corpus corpus;
+			// If the input is a json file, set the json filename variable and open json corpus
+			if (options.getCorpusFileName().toLowerCase().contains("json")) {
+				options.setJSONFileName(options.getCorpusFileName());
+				corpus = new CCGJSONCorpus(options);
+			} else
+				corpus = new Corpus(options);
 			Evaluator eval;
 			if (args.length == 2) {
 				eval = new Evaluator(corpus, args[1].substring(1));

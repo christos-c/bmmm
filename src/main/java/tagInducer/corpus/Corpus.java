@@ -223,11 +223,12 @@ public class Corpus {
 			SentenceObj sentence = new SentenceObj();
 			for (int wordInd = 0; wordInd < corpusOriginalSents[sentInd].length; wordInd++) {
 				sentence.addWord(
-						corpusOriginalSents[sentInd][wordInd],		// Word
-						null,																			// Lemma
-						corpusGoldTags[sentInd][wordInd],					// Gold POS Tag
-						corpusUPos[sentInd][wordInd],							// Gold UPOS Tag
-						corpusClusters[sentInd][wordInd] + "");		// Induced Cluster
+					corpusOriginalSents[sentInd][wordInd],    // Word
+					"",                                       // Lemma
+					corpusGoldTags[sentInd][wordInd],         // Gold POS Tag
+					corpusUPos[sentInd][wordInd],             // Gold UPOS Tag
+					corpusClusters[sentInd][wordInd] + "",    // Induced Cluster
+					corpusCCGCats[sentInd][wordInd]);         // CCG Category
 			}
 			out.write(sentence + "\n");
 		}

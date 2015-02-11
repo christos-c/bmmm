@@ -44,7 +44,7 @@ public class Inducer{
 		Map<String, int[][]> featureVectors = new HashMap<>();
 
 		if (featureTypes.contains(FeatureNames.CONTEXT)) {
-			Features features = new ContextFeatures(corpus, o.getNumContextFeats());
+			Features features = new ContextFeatures(corpus);
 			featureVectors.put(FeatureNames.CONTEXT, features.getFeatures());
 		}
 		if (featureTypes.contains(FeatureNames.DEPS)) {
@@ -60,8 +60,11 @@ public class Inducer{
 			System.exit(-1);
 		}
 		if (featureTypes.contains(FeatureNames.PARG)) {
-			Features features = new PargFeatures(corpus, o.getPargFile());
-			featureVectors.put(FeatureNames.PARG, features.getFeatures());
+            // Special case where the features are broken into 3 categories
+            PargFeatures features = new PargFeatures(corpus);
+            featureVectors.put(FeatureNames.PARG + ":cat", features.getCatFeatures());
+            featureVectors.put(FeatureNames.PARG + ":headCat", features.getHeadCatFeatures());
+            featureVectors.put(FeatureNames.PARG + ":context", features.getContextFeatures());
 		}
 		if (featureTypes.contains(FeatureNames.PARGDEPS)) {
 			Features features = new PargDepFeatures(corpus, o.getPargFile(), o.getNumContextFeats(), o.isUndirDeps());

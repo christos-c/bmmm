@@ -1,33 +1,17 @@
 package tagInducer.features;
 
 import tagInducer.corpus.Corpus;
-import tagInducer.utils.CollectionUtils;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ContextFeatures implements Features {
 	private final Corpus corpus;
-	private final List<String> frequentWordList;
+	private final List<Integer> frequentWordList;
 
-	public ContextFeatures(Corpus corpus, int numContextFeatWords) throws IOException{
+	public ContextFeatures(Corpus corpus) throws IOException{
 		this.corpus = corpus;
-
-		//Create a list of feature words (N most frequent original words)
-		Map<String, Integer> wordFreq = new HashMap<>();
-		//Get the word counts
-		for (String[] sent : corpus.getCorpusOriginalSents()) {
-			for (String word : sent) {
-				if (wordFreq.containsKey(word)) wordFreq.put(word, wordFreq.get(word) + 1);
-				else wordFreq.put(word, 1);
-			}
-		}
-		//Resort wrt frequency and prune
-		// Check in case we have less than numContextFeatWords in the corpus
-		numContextFeatWords = Math.min(numContextFeatWords, wordFreq.size());
-		frequentWordList = CollectionUtils.sortByValueList(wordFreq).subList(0, numContextFeatWords);
+		frequentWordList = corpus.getFrequentWordList();
 	}
 
 	@Override
@@ -48,7 +32,7 @@ public class ContextFeatures implements Features {
 				int prevPosition = pos - 1;
 				//Add the previous context word
 				if (prevPosition >= 0) {
-					String prevWord = sentence[prevPosition];
+					int prevWord = corpus.getWordType(sentence[prevPosition]);
 					int prevContextWordIndex = frequentWordList.indexOf(prevWord);
 					if (prevContextWordIndex > 0) leftFeatures[wordType][prevContextWordIndex]++;
 					// If no freq. context word to the right add NULL feature
@@ -59,7 +43,7 @@ public class ContextFeatures implements Features {
 				int nextPosition = pos + 1;
 				//Add the next context word
 				if (nextPosition < sentence.length) {
-					String nextWord = sentence[nextPosition];
+					int nextWord = corpus.getWordType(sentence[nextPosition]);
 					int nextContextWordIndex = frequentWordList.indexOf(nextWord);
 					if (nextContextWordIndex > 0) rightFeatures[wordType][nextContextWordIndex]++;
 					// If no freq. context word to the right add NULL feature

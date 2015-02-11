@@ -28,19 +28,7 @@ public class PargDepFeatures implements Features {
 		this.undirDeps = undirDeps;
 		this.headDepMap = new HashMap<>();
 
-		//Create a list of feature words (N most frequent original words)
-		Map<Integer, Integer> wordFreq = new HashMap<>();
-		//Get the word counts
-		for (int[] sent : corpus.getCorpusProcessedSents()) {
-			for (int word : sent) {
-				if (wordFreq.containsKey(word)) wordFreq.put(word, wordFreq.get(word) + 1);
-				else wordFreq.put(word, 1);
-			}
-		}
-		//Resort wrt frequency and prune
-		// Check in case we have less than numContextFeatWords in the corpus
-		numContextWords = Math.min(numContextWords, wordFreq.size());
-		List<Integer> frequentWordList = CollectionUtils.sortByValueList(wordFreq).subList(0, numContextWords);
+		List<Integer> frequentWordList = corpus.getFrequentWordList();
 
 		//Read the features
 		for (File file : FileUtils.listFilesMatching(pargFile)) {

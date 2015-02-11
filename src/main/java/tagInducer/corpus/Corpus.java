@@ -11,7 +11,9 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Corpus {
 	protected int numTokens, numTypes, numClusters;
@@ -57,7 +59,9 @@ public class Corpus {
 	private static final int depIndex = 7;
 	private static final int depTypeIndex = 8;
 
-	/**
+    private final List<Integer> frequentWordList;
+
+    /**
 	 * Extracts a corpus from input
 	 * @param o The configuration object
 	 */
@@ -80,6 +84,20 @@ public class Corpus {
 		}
 		numTypes = wordTypeCoder.size();
 		numClusters = CollectionUtils.countUnique(corpusClusters);
+
+        //Create a list of feature words (N most frequent original words)
+        Map<Integer, Integer> wordFreq = new HashMap<>();
+        //Get the word counts
+        for (int[] sent : getCorpusProcessedSents()) {
+            for (int word : sent) {
+                if (wordFreq.containsKey(word)) wordFreq.put(word, wordFreq.get(word) + 1);
+                else wordFreq.put(word, 1);
+            }
+        }
+        //Resort wrt frequency and prune
+        // Check in case we have less than numContextFeatWords in the corpus
+        int numContextWords = Math.min(o.getNumContextFeats(), wordFreq.size());
+        frequentWordList = CollectionUtils.sortByValueList(wordFreq).subList(0, numContextWords);
 	}
 
 	protected void readCorpus() {
@@ -281,4 +299,8 @@ public class Corpus {
 	public String getWordString(int i) {
 		return wordTypeCoder.decode(i);
 	}
+
+    public List<Integer> getFrequentWordList() {
+        return frequentWordList;
+    }
 }

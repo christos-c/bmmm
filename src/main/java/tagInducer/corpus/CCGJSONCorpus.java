@@ -67,7 +67,7 @@ public class CCGJSONCorpus extends Corpus {
         }
     }
 
-    public List<SentenceObj> sentences() {
+    public List<SentenceObj> getSentences() {
         return sentences;
     }
 

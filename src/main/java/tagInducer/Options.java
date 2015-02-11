@@ -131,7 +131,7 @@ public class Options {
 		}
 		if (featureTypes.contains(FeatureNames.PARG)) {
 			str += "  ## PARG Parameters:\n";
-			str += "  --Parg File:\t"+pargFile;
+            str += "  --Cont. Words:\t"+numContextFeats;
 			str += "\n";
 		}
 		if (featureTypes.contains(FeatureNames.PARGDEPS)) {

@@ -4,6 +4,7 @@ import tagInducer.corpus.CCGJSONCorpus;
 import tagInducer.corpus.Corpus;
 import tagInducer.utils.CollectionUtils;
 import tagInducer.utils.StringCoder;
+import tagInducer.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -181,7 +182,11 @@ public class Evaluator {
 		return ((double)correctTags/(double)goldTags.length)*100;
 	}
 
-	public double VMeasure(){
+	/**
+	 * Calculates V-Measure as defined in Rosenberg & Hirschberg (2007).
+	 * @return The array of V-Measure [0], homogeneity [1], and completeness [2]
+	 */
+	public double[] VMeasure(){
 		//H(CL): Cluster entropy
 		if (clusterEntropy == 0)
 			clusterEntropy = entropy(clusterCounts, numClusters);
@@ -198,14 +203,22 @@ public class Evaluator {
 		double H_CL_T = clusterEntropy - mutualInformation;
 		//H(T|CL): Conditional tag entropy
 		double H_T_CL = tagEntropy - mutualInformation;
-		//h=1-H(CL|T)/H(CL)
+		//Completeness: 1-H(T|CL)/H(T)
+		// In order to satisfy the completeness criterion, a clustering
+		// must assign *all* of those datapoints that are members of a single class to a single cluster.
 		double c=1-(H_CL_T/clusterEntropy);
-		//c=1-H(T|CL)/H(T)
+		//Homogeneity: 1-H(CL|T)/H(CL)
+		// In order to satisfy the homogeneity criterion, a clustering
+		// must assign *only* those datapoints that are members of a single class to a single cluster.
 		double h=1-(H_T_CL/tagEntropy);
 		//V-Measure = (2*h*c)/(h+c)
 		double VM=(2*h*c)/(h+c);
-		
-		return VM*100;
+
+		double[] vmResults = new double[3];
+		vmResults[0] = VM*100;
+		vmResults[1] = h*100;
+		vmResults[2] = c*100;
+		return vmResults;
 	}
 	
 	public double VI() {
@@ -256,6 +269,14 @@ public class Evaluator {
 		return MI;
 	}
 
+	public String scoresSummary() {
+		return "M-1:\t" + StringUtils.twoDecimal(manyToOne()) + "\n" +
+				"VI:\t" + StringUtils.twoDecimal(VI()) + "\n" +
+				"VM:\t" + StringUtils.twoDecimal(VMeasure()[0]) + "\n" +
+				"VM-Heterogeneity:\t" + StringUtils.twoDecimal(VMeasure()[1]) + "\n" +
+				"VM-Completeness:\t" + StringUtils.twoDecimal(VMeasure()[2]);
+	}
+
 	public static void main(String[] args) {
 		if (args.length < 1 || (args.length > 1 &&
 				!(args[1].equals("-upos") || args[1].equals("-ccg") || args[1].equals("-fine")))) {
@@ -270,13 +291,7 @@ public class Evaluator {
 		}
 		else {
 			OptionsCmdLine options = new OptionsCmdLine(new String[]{"-in", args[0]});
-			Corpus corpus;
-			// If the input is a json file, set the json filename variable and open json corpus
-			if (options.getCorpusFileName().toLowerCase().contains("json")) {
-				options.setJSONFileName(options.getCorpusFileName());
-				corpus = new CCGJSONCorpus(options);
-			} else
-				corpus = new Corpus(options);
+			Corpus corpus = new CCGJSONCorpus(options);
 			Evaluator eval;
 			if (args.length == 2) {
 				eval = new Evaluator(corpus, args[1].substring(1));
@@ -285,8 +300,7 @@ public class Evaluator {
 				eval = new Evaluator(corpus, args[1].substring(1), args[2].substring(1));
 			}
 			else eval = new Evaluator(corpus);
-			System.out.println("M-1:\t" + eval.manyToOne() + "\nVM:\t" + eval.VMeasure() + "\nVI:\t" + eval.VI());
+			System.out.println(eval.scoresSummary());
 		}
-
 	}
 }

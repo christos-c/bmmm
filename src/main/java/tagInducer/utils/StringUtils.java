@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -80,5 +81,10 @@ public class StringUtils {
 		String d = "";
 		for (int i = 0; i < numChars; i++) d += '\b';
 		return d;
+	}
+
+	public static String twoDecimal(double d) {
+		DecimalFormat df = new DecimalFormat("##.##");
+		return df.format(d);
 	}
 }

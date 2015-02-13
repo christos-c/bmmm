@@ -30,10 +30,7 @@ public class Inducer{
 		System.out.println(o);
 		List<String> featureTypes = o.getFeatureTypes();
 
-		if (o.getJSONFileName() != null)
-			corpus = new CCGJSONCorpus(o);
-		else
-			corpus = new Corpus(o);
+		corpus = new CCGJSONCorpus(o);
 
 		System.out.println("Corpus:\t" + corpus.getNumSentences() + " sents\t" +
 				corpus.getNumTokens() + " tokens\t" + corpus.getNumTypes() + " types.");
@@ -103,7 +100,7 @@ public class Inducer{
 		if (corpus.hasTags()) {
 			System.out.println();
 			Evaluator eval = new Evaluator(corpus);
-			evalScores = "M-1: " + eval.manyToOne() + "\tVM: " + eval.VMeasure() + "\tVI: " + eval.VI();
+			evalScores = eval.scoresSummary();
 			System.out.println(evalScores);
 		}
 

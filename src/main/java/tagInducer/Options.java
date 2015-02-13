@@ -18,7 +18,7 @@ public class Options {
 	private static Properties config = new Properties();
 	protected int numClasses, numContextFeats, numIters;
 	protected boolean extendedMorph, ignorePunct, lowercase, undirDeps;
-	protected String morphFile, pargFile, corpusFileName, jsonFileName, outFile, apiKeyFile;
+	protected String morphFile, pargFile, jsonFileName, outFile, apiKeyFile;
 	protected List<String> featureTypes = new ArrayList<>();
 	
 	public Options(){}
@@ -34,7 +34,7 @@ public class Options {
 			System.exit(1);
 		}
 		outFile = config.getProperty("OUT_FILE");
-		corpusFileName = config.getProperty("CORPUS");
+		jsonFileName = config.getProperty("CORPUS");
 		numClasses = Integer.parseInt(config.getProperty("NUM_CLUSTERS"));
 		temp = config.getProperty("FEATURE_TYPES");
 		if (temp != null){
@@ -70,9 +70,7 @@ public class Options {
 	public boolean isExtendedMorph() {return extendedMorph;}
 	public String getMorphFile() {return morphFile;}
 	public String getPargFile() {return pargFile;}
-	public String getCorpusFileName() {return corpusFileName;}
-	public String getJSONFileName() {return jsonFileName;}
-	public void setJSONFileName(String filename) {jsonFileName = filename;}
+	public String getCorpusFileName() {return jsonFileName;}
 	public int getIters() {return numIters;}
 	public List<String> getFeatureTypes() {return featureTypes;}
 	public String getOutFile() {return outFile;}
@@ -103,7 +101,7 @@ public class Options {
 		for (String feat:featureTypes) str += feat+" ";
 		str = str.trim();
 		str += "\n";
-		str += "Corpus File:\t"+corpusFileName;
+		str += "Corpus File:\t"+jsonFileName;
 		str += "\n";
 		str += "Num Iterations:\t"+numIters;
 		str += "\n";
@@ -120,8 +118,6 @@ public class Options {
 		}
 		if (featureTypes.contains(FeatureNames.DEPS)) {
 			str += "  ## Dependency Parameters:\n";
-			str += "  --Deps File:\t"+corpusFileName;
-			str += "\n";
 			str += "  --Use undir:\t"+undirDeps;
 			str += "\n";
 		}

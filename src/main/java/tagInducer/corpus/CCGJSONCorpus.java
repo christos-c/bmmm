@@ -46,7 +46,7 @@ public class CCGJSONCorpus extends Corpus {
         List<List<String>> corpusCCGCatList = new ArrayList<>();
         List<List<Integer>> corpusClustersList = new ArrayList<>();
         try {
-            sentences = readJSON(o.getJSONFileName());
+            sentences = readJSON(o.getCorpusFileName());
             for (SentenceObj sent : sentences) {
                 corpusSentsList.add(new ArrayList<>(sent.getWords()));
                 corpusTagsList.add(new ArrayList<>(sent.getGoldTags()));

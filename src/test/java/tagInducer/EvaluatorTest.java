@@ -19,9 +19,11 @@ public class EvaluatorTest extends TestCase {
         // Insert a deliberate error by assigning 'more' and 'cookies' to the same category
         int[] clusterAssignment = {1, 2, 3, 3, 4, 1, 2, 1, 4};
         corpus.setCorpusClusters(clusterAssignment);
+        System.out.println("Original:");
         evaluator = new Evaluator(corpus);
+        System.out.println(evaluator.scoresSummary());
         assertEquals(80.0, evaluator.manyToOne(), 1.0);
-        assertEquals(90.0, evaluator.VMeasure(), 1.0);
+        assertEquals(90.0, evaluator.VMeasure()[0], 1.0);
         assertEquals(0, evaluator.VI(), 1.0);
     }
 
@@ -33,8 +35,10 @@ public class EvaluatorTest extends TestCase {
         int[] clusterAssignment = {1, 2, 3, 3, 4, 1, 2, 4};
         corpus.setCorpusClusters(clusterAssignment);
         evaluator = new Evaluator(corpus);
+        System.out.println("Lowercase:");
+        System.out.println(evaluator.scoresSummary());
         assertEquals(80.0, evaluator.manyToOne(), 1.0);
-        assertEquals(90.0, evaluator.VMeasure(), 1.0);
+        assertEquals(90.0, evaluator.VMeasure()[0], 1.0);
         assertEquals(0, evaluator.VI(), 1.0);
     }
 }

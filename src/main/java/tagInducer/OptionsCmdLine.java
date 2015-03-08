@@ -26,6 +26,12 @@ public class OptionsCmdLine extends Options{
 				case "-classes":
 					if (!checkNext(args, i)) numClasses = Integer.parseInt(args[++i]);
 					break;
+                case "-maxLength":
+                    if (!checkNext(args, i)) maxLength = Integer.parseInt(args[++i]);
+                    break;
+				case "-context-feats":
+					if (!checkNext(args, i)) numContextFeats = Integer.parseInt(args[++i]);
+					break;
 				case "-ignorePunct":
 					ignorePunct = true;
 					break;
@@ -33,21 +39,15 @@ public class OptionsCmdLine extends Options{
 					lowercase = true;
 					break;
 				case "-deps":
+					if (!checkNext(args, i) && args[++i].equals("undir")) undirDeps = true;
 					featureTypes.add(FeatureNames.DEPS);
 					break;
-				case "-undir":
-					undirDeps = true;
-					break;
 				case "-parg":
-					if (!checkNext(args, i)) pargFile = args[++i];
+					if (!checkNext(args, i)) pargFeatType = args[++i];
 					featureTypes.add(FeatureNames.PARG);
 					break;
 				case "-ccg-cats":
 					featureTypes.add(FeatureNames.CCGCATS);
-					break;
-				case "-parg-deps":
-					if (!checkNext(args, i)) pargFile = args[++i];
-					featureTypes.add(FeatureNames.PARGDEPS);
 					break;
 				case "-morph":
 					if (!checkNext(args, i)) morphFile = args[++i];
@@ -71,6 +71,7 @@ public class OptionsCmdLine extends Options{
 		lowercase = false;
 		undirDeps = false;
 		extendedMorph = true;
+        maxLength = Integer.MAX_VALUE;
 		featureTypes.add(FeatureNames.CONTEXT);
 	}
 	
@@ -83,9 +84,9 @@ public class OptionsCmdLine extends Options{
 		usage += "\n\t";
 		usage += "## General options ##";
 		usage += "\n\t";
-		usage += "-in <file>:\tThe input corpus. Can be 1-sentence-per-line (tagged/raw) or CoNLL style";
+		usage += "-in <file>:\tThe input corpus. It needs to be a JSON-formatted file";
 		usage += "\n\t";
-		usage += "-out <file>:\tThe output file. If not supplied the inducer with create an output dir";
+		usage += "-out <file>:\tThe output file";
 		usage += "\n\t";
 		usage += "-iters <num>:\tNumber of iterations (default=500)";
 		usage += "\n\t";
@@ -99,13 +100,13 @@ public class OptionsCmdLine extends Options{
 		usage += "\n\t";
 		usage += "## Feature options ##";
 		usage += "\n\t";
-		usage += "-deps:\t\tUse dependency features (read from input corpus)";
+		usage += "-context-feats <num>:\tNumber of context features (default=100)";
 		usage += "\n\t";
-		usage += "[-undir:\tAllow undirected dependency features (default=false)]";
+		usage += "-deps [undir]:\tUse dependency features. undir: Allow undirected dependency features (default=false)";
 		usage += "\n\t";
 		usage += "-ccg-cats:\tUse CCG category features (read from input corpus)";
 		usage += "\n\t";
-		usage += "-parg <file>:\tUse CCG PARG features";
+		usage += "-parg [type]:\tUse CCG PARG features. type=[headcat|cat|context|all] (default=all)";
 		usage += "\n\t";
 		usage += "-parg-deps <regexp>:\tUse CCG PARG dependency features";
 		usage += "\n\t";

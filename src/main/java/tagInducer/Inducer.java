@@ -57,15 +57,29 @@ public class Inducer{
 			System.exit(-1);
 		}
 		if (featureTypes.contains(FeatureNames.PARG)) {
+			String type = (o.getPargFeatType() == null) ? "all" : o.getPargFeatType();
             // Special case where the features are broken into 3 categories
             PargFeatures features = new PargFeatures(corpus);
-            featureVectors.put(FeatureNames.PARG + ":cat", features.getCatFeatures());
-            featureVectors.put(FeatureNames.PARG + ":headCat", features.getHeadCatFeatures());
-            featureVectors.put(FeatureNames.PARG + ":context", features.getContextFeatures());
-		}
-		if (featureTypes.contains(FeatureNames.PARGDEPS)) {
-			Features features = new PargDepFeatures(corpus, o.getPargFile(), o.getNumContextFeats(), o.isUndirDeps());
-			featureVectors.put(FeatureNames.PARGDEPS, features.getFeatures());
+            switch (type) {
+				case "all":
+					featureVectors.put(FeatureNames.PARG + ":cat", features.getCatFeatures());
+					featureVectors.put(FeatureNames.PARG + ":headCat", features.getHeadCatFeatures());
+					featureVectors.put(FeatureNames.PARG + ":context", features.getContextFeatures());
+					break;
+				case "cat":
+					featureVectors.put(FeatureNames.PARG + ":cat", features.getCatFeatures());
+					break;
+				case "headcat":
+					featureVectors.put(FeatureNames.PARG + ":headCat", features.getHeadCatFeatures());
+					break;
+				case "context":
+					featureVectors.put(FeatureNames.PARG + ":context", features.getContextFeatures());
+					break;
+				default:
+					System.err.println("Wrong PARG feature type: " + type + ". " +
+							"Available types: cat, headcat, context, all");
+					System.exit(-1);
+			}
 		}
 		if (featureTypes.contains(FeatureNames.CCGCATS)) {
 			Features features = new CCGCatFeatures(corpus);

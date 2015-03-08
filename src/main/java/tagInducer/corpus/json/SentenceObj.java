@@ -74,8 +74,12 @@ public class SentenceObj {
     }
 
     public List<Integer> getCoNLLHeads() {
-        if (synPars == null || synPars[0].conllParse == null) // Return list of -1
-            return new ArrayList<Integer>() {{  for(int i = 0; i < words.length; ++i) add(-1);  }};
+        if (synPars == null || synPars[0].conllParse == null) {
+            // Return list of -1
+            Integer[] a = new Integer[words.length];
+            Arrays.fill(a, -1);
+            return Arrays.asList(a);
+        }
 
         ArrayList<Integer> list = new ArrayList<>();
         for (CoNLLDep dep : synPars[0].conllParse) {
@@ -101,4 +105,12 @@ public class SentenceObj {
         words[words.length-1].cat      = cat.isEmpty()     ? null : cat;
     }
 
+    public int lengthNoPunctuation() {
+        int l = words.length;
+        for (WordObj word : words) {
+            if (word.upos != null && word.upos.equals("."))
+                l--;
+        }
+        return l;
+    }
 }

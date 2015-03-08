@@ -198,41 +198,17 @@ public class Corpus {
 		numClusters = CollectionUtils.countUnique(corpusClusters);
 	}
 
+	public void setCorpusClusters(int[][] sentClusters) {
+		corpusClusters = sentClusters;
+		numClusters = CollectionUtils.countUnique(corpusClusters);
+	}
+
 	/**
 	 * Outputs the tagged corpus
 	 * @param outFile The name of the output file
 	 */
 	public void writeTagged(String outFile) throws IOException {
-		if (outFile.toLowerCase().contains("json")) {
-			writeTaggedJSON(outFile);
-			return;
-		}
-
-		// Original output format:
-		//   0      1      2      3          4         5      6      7       8
-		// index  word  lemma  fineTag  [coarseTag]  uPOS  [feat]  [dep]  [depType]
-		// BMMM output format:
-		// index  word    _    fineTag   clusterID   uPOS    _      dep      _
-		// XXX Maybe we should reconstruct the original file
-		BufferedWriter out = FileUtils.createOut(outFile);
-		for (int sentInd = 0; sentInd < corpusOriginalSents.length; sentInd++) {
-			String outLine = "";
-			for (int wordInd = 0; wordInd < corpusOriginalSents[sentInd].length; wordInd++) {
-				String wordStr = corpusOriginalSents[sentInd][wordInd];
-				outLine += (wordInd + 1) + "\t";
-				outLine += wordStr + "\t";
-				outLine += "_\t";
-				outLine += corpusGoldTags[sentInd][wordInd] + "\t";
-				outLine += corpusClusters[sentInd][wordInd] + "\t";
-				outLine += corpusUPos[sentInd][wordInd] + "\t";
-				outLine += "_\t";
-				outLine += corpusDeps[sentInd][wordInd]+"\t";
-				outLine += "_\t";
-				outLine += "\n";
-			}
-			out.write(outLine + "\n");
-		}
-		out.close();
+		writeTaggedJSON(outFile);
 	}
 
 	public void writeTaggedJSON(String outFile) throws IOException {

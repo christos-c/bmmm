@@ -1,12 +1,10 @@
 package tagInducer;
 
 import tagInducer.features.FeatureNames;
-import tagInducer.utils.FileUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -16,9 +14,9 @@ import java.util.Properties;
  */
 public class Options {
 	private static Properties config = new Properties();
-	protected int numClasses, numContextFeats, numIters;
+	protected int numClasses, numContextFeats, numIters, maxLength;
 	protected boolean extendedMorph, ignorePunct, lowercase, undirDeps;
-	protected String morphFile, pargFile, jsonFileName, outFile, apiKeyFile;
+	protected String morphFile, pargFeatType, jsonFileName, outFile, apiKeyFile;
 	protected List<String> featureTypes = new ArrayList<>();
 	
 	public Options(){}
@@ -55,12 +53,16 @@ public class Options {
 		lowercase = Boolean.parseBoolean(config.getProperty("LOWERCASE"));
 		undirDeps = Boolean.parseBoolean(config.getProperty("UNDIR_DEPS"));
 
-		// PARG options
-		pargFile = config.getProperty("PARG_FILE");
+		// PARG options (default type = all)
+		pargFeatType = config.getProperty("PARG_FEAT_TYPE", "all");
 		
 		// Morphology options
 		morphFile = config.getProperty("MORPH_FILE");
 		extendedMorph = Boolean.parseBoolean(config.getProperty("EXTENDED_MORPH"));
+
+        if (config.contains("MAX_SENT_LENGTH"))
+            maxLength = Integer.parseInt(config.getProperty("MAX_SENT_LENGTH"));
+        else maxLength = Integer.MAX_VALUE;
 
 		apiKeyFile = config.getProperty("API_KEY");
 	}
@@ -69,7 +71,7 @@ public class Options {
 	public int getNumContextFeats() {return numContextFeats;}
 	public boolean isExtendedMorph() {return extendedMorph;}
 	public String getMorphFile() {return morphFile;}
-	public String getPargFile() {return pargFile;}
+	public String getPargFeatType() {return pargFeatType;}
 	public String getCorpusFileName() {return jsonFileName;}
 	public int getIters() {return numIters;}
 	public List<String> getFeatureTypes() {return featureTypes;}
@@ -78,8 +80,9 @@ public class Options {
 	public boolean isLowercase(){return lowercase;}
 	public boolean isUndirDeps(){return undirDeps;}
 	public String getAPIKeyFile(){return apiKeyFile;}
+    public int getMaxLength() {return maxLength;}
 
-	public void setLowercase(boolean lowercase) {
+    public void setLowercase(boolean lowercase) {
 		this.lowercase = lowercase;
 	}
 
@@ -107,6 +110,8 @@ public class Options {
 		str += "\n";
 		str += "Num Classes:\t"+numClasses;
 		str += "\n";
+        str += "Max Sent. Length:\t" + ((maxLength == Integer.MAX_VALUE)? "Infinity": maxLength);
+        str += "\n";
 		str += "Ignore Punct.:\t"+ignorePunct;
 		str += "\n";
 		str += "Lowercasing:\t"+lowercase;
@@ -127,14 +132,9 @@ public class Options {
 		}
 		if (featureTypes.contains(FeatureNames.PARG)) {
 			str += "  ## PARG Parameters:\n";
+            str += "  --Type:\t"+pargFeatType;
+			str += "\n";
             str += "  --Cont. Words:\t"+numContextFeats;
-			str += "\n";
-		}
-		if (featureTypes.contains(FeatureNames.PARGDEPS)) {
-			str += "  ## PARG-DEPS Parameters:\n";
-			str += "  --Parg File:\t"+ Arrays.toString(FileUtils.listFilesMatching(pargFile));
-			str += "\n";
-			str += "  --Use undir:\t"+undirDeps;
 			str += "\n";
 		}
 		if (featureTypes.contains(FeatureNames.MORPH)) {
@@ -164,9 +164,6 @@ public class Options {
 				break;
 			case "parg":
 				featureTypes.add(FeatureNames.PARG);
-				break;
-			case "parg-deps":
-				featureTypes.add(FeatureNames.PARGDEPS);
 				break;
 			case "ccg-cats":
 				featureTypes.add(FeatureNames.CCGCATS);

@@ -48,12 +48,14 @@ public class CCGJSONCorpus extends Corpus {
         try {
             sentences = readJSON(o.getCorpusFileName());
             for (SentenceObj sent : sentences) {
-                corpusSentsList.add(new ArrayList<>(sent.getWords()));
-                corpusTagsList.add(new ArrayList<>(sent.getGoldTags()));
-                corpusUPosList.add(new ArrayList<>(sent.getUPOSs()));
-                corpusCCGCatList.add(new ArrayList<>(sent.getCCGCats()));
-                corpusDepsList.add(new ArrayList<>(sent.getCoNLLHeads()));
-                corpusClustersList.add(new ArrayList<>(sent.getClusters()));
+                if (sent.lengthNoPunctuation() <= o.getMaxLength()) {
+                    corpusSentsList.add(new ArrayList<>(sent.getWords()));
+                    corpusTagsList.add(new ArrayList<>(sent.getGoldTags()));
+                    corpusUPosList.add(new ArrayList<>(sent.getUPOSs()));
+                    corpusCCGCatList.add(new ArrayList<>(sent.getCCGCats()));
+                    corpusDepsList.add(new ArrayList<>(sent.getCoNLLHeads()));
+                    corpusClustersList.add(new ArrayList<>(sent.getClusters()));
+                }
             }
             corpusOriginalSents = CollectionUtils.toStringArray2D(corpusSentsList);
             corpusGoldTags = CollectionUtils.toStringArray2D(corpusTagsList);

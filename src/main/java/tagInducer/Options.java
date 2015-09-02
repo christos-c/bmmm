@@ -15,7 +15,7 @@ import java.util.Properties;
 public class Options {
 	private static Properties config = new Properties();
 	protected int numClasses, numContextFeats, numIters, maxLength;
-	protected boolean extendedMorph, ignorePunct, lowercase, undirDeps;
+	protected boolean extendedMorph, ignorePunct, lowercase, undirDeps, generateDistributions;
 	protected String morphFile, pargFeatType, jsonFileName, outFile, apiKeyFile;
 	protected List<String> featureTypes = new ArrayList<>();
 	
@@ -65,6 +65,9 @@ public class Options {
         else maxLength = Integer.MAX_VALUE;
 
 		apiKeyFile = config.getProperty("API_KEY");
+
+        // Whether to generate a per-class distribution for each type
+        generateDistributions = Boolean.parseBoolean(config.getProperty("GENERATE_DISTR", "false"));
 	}
 	
 	public int getNumClasses() {return numClasses;}
@@ -81,6 +84,7 @@ public class Options {
 	public boolean isUndirDeps(){return undirDeps;}
 	public String getAPIKeyFile(){return apiKeyFile;}
     public int getMaxLength() {return maxLength;}
+    public boolean generateDistributions() {return generateDistributions;}
 
     public void setLowercase(boolean lowercase) {
 		this.lowercase = lowercase;
@@ -116,6 +120,10 @@ public class Options {
 		str += "\n";
 		str += "Lowercasing:\t"+lowercase;
 		str += "\n";
+        if (generateDistributions) {
+            str += "Generating per-type class distributions";
+            str += "\n";
+        }
 		if (featureTypes.contains(FeatureNames.CONTEXT)) {
 			str += "  ## Context Parameters:\n";
 			str += "  --Cont. Words:\t"+numContextFeats;

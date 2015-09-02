@@ -56,6 +56,9 @@ public class OptionsCmdLine extends Options{
 				case "-noContext":
 					featureTypes.remove(FeatureNames.CONTEXT);
 					break;
+                case "-genDistr":
+                    generateDistributions = true;
+                    break;
 				case "-api-key":
 					if (!checkNext(args, i)) apiKeyFile = args[++i];
 					break;
@@ -116,6 +119,8 @@ public class OptionsCmdLine extends Options{
 		usage += "\n\t";
 		usage += "-noContext:\tDo *not* use context features";
 		usage += "\n\t";
+        usage += "-genDistr:\tGenerate the distributions over classes for each type";
+        usage += "\n\t";
 		return usage;
 	}
 }

@@ -42,6 +42,10 @@ public class GibbsSampler {
 
 	private MathsUtils m = new MathsUtils();
 
+    /** The (log) posterior distribution over classes for each type  */
+    private double[][] classDistributions;
+    private double[][] bestClassDistributions;
+
 	/**
 	 * Initialise the Gibbs sampler and configure the sampling options.
 	 */
@@ -69,6 +73,7 @@ public class GibbsSampler {
 		}
 
 		z = new int[numTypes];
+        classDistributions = new double[numTypes][numClasses];
 		//For every word type
 		int cluster;
 		for (int type = 0; type < numTypes; type++) {
@@ -170,7 +175,9 @@ public class GibbsSampler {
 				if (classPosterior > bestClassLogP) {
 					bestClassLogP = classPosterior;
 					bestZ = new int[z.length];
+                    bestClassDistributions = new double[numTypes][numClasses];
 					System.arraycopy(z, 0, bestZ, 0, z.length);
+					System.arraycopy(classDistributions, 0, bestClassDistributions, 0, classDistributions.length);
 				}
 				//Sample for class/feature hyperparameters
 				sampleHyper(temperature, classPosterior);
@@ -221,6 +228,7 @@ public class GibbsSampler {
 		for (cluster = 0; cluster < numClasses; cluster++)
 			p[cluster] *= temperature;
 
+        classDistributions[type] = p;
 
 		//Draw a cluster from the multinomial p
 		cluster = m.multSampleLog(p);
@@ -367,4 +375,8 @@ public class GibbsSampler {
 	public double getBestClassLogP() {
 		return bestClassLogP;
 	}
+
+    public double[][] getBestClassDistributions() {
+        return bestClassDistributions;
+    }
 }

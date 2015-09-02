@@ -15,6 +15,8 @@ public class StringUtils {
 			String.valueOf(Character.toChars('\u00AB')),
 			String.valueOf(Character.toChars('\u201C')),
 			String.valueOf(Character.toChars('\u201D')),
+			// Chinese comma, semicolon
+			"，", "；",
 			"(", ")",
 			"{", "}",
 			"[", "]",

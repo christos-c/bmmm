@@ -3,9 +3,13 @@ package tagInducer;
 import tagInducer.corpus.CCGJSONCorpus;
 import tagInducer.corpus.Corpus;
 import tagInducer.features.*;
+import tagInducer.utils.CollectionUtils;
+import tagInducer.utils.FileUtils;
 import tagInducer.utils.NotificationSender;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,6 +127,18 @@ public class Inducer{
 
 		//Output the tagged file
 		corpus.writeTagged(o.getOutFile());
+
+        if (o.generateDistributions()) {
+            //TODO Create a more sophisticated output file
+            BufferedWriter out = FileUtils.createOut(o.getOutFile() + ".distr");
+            double[][] array = sampler.getBestClassDistributions();
+            for (int wordType = 0; wordType < array.length; wordType++) {
+                double[] anArray = array[wordType];
+                String distr = Arrays.toString(anArray);
+                out.write(corpus.getWordString(wordType) + "\t" + distr.substring(1, distr.length()-1) + "\n");
+            }
+            out.close();
+        }
 
 		//Send a notification to android (if configured)
 		if (o.getAPIKeyFile() != null) {

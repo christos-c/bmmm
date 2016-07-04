@@ -208,23 +208,14 @@ public class Corpus {
 	 * @param outFile The name of the output file
 	 */
 	public void writeTagged(String outFile) throws IOException {
-		writeTaggedJSON(outFile);
-	}
-
-	public void writeTaggedJSON(String outFile) throws IOException {
 		BufferedWriter out = FileUtils.createOut(outFile);
 		for (int sentInd = 0; sentInd < corpusOriginalSents.length; sentInd++) {
-			SentenceObj sentence = new SentenceObj();
 			for (int wordInd = 0; wordInd < corpusOriginalSents[sentInd].length; wordInd++) {
-				sentence.addWord(
-					corpusOriginalSents[sentInd][wordInd],    // Word
-					"",                                       // Lemma
-					corpusGoldTags[sentInd][wordInd],         // Gold POS Tag
-					corpusUPos[sentInd][wordInd],             // Gold UPOS Tag
-					corpusClusters[sentInd][wordInd] + "",    // Induced Cluster
-					corpusCCGCats[sentInd][wordInd]);         // CCG Category
+				out.write((wordInd+1) + "\t" + corpusOriginalSents[sentInd][wordInd] + "\t_\t" +
+						corpusGoldTags[sentInd][wordInd] + "\t" + corpusClusters[sentInd][wordInd] +"\t" +
+						corpusUPos[sentInd][wordInd] + "\t_\t" + corpusDeps[sentInd][wordInd] + "\t_\n");
 			}
-			out.write(sentence + "\n");
+			out.write("\n");
 		}
 		out.close();
 	}

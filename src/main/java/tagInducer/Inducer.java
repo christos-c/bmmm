@@ -34,7 +34,9 @@ public class Inducer{
 		System.out.println(o);
 		List<String> featureTypes = o.getFeatureTypes();
 
-		corpus = new CCGJSONCorpus(o);
+		if (o.getCorpusFileName().contains("json"))
+			corpus = new CCGJSONCorpus(o);
+		else corpus = new Corpus(o);
 
 		System.out.println("Corpus:\t" + corpus.getNumSentences() + " sents\t" +
 				corpus.getNumTokens() + " tokens\t" + corpus.getNumTypes() + " types.");

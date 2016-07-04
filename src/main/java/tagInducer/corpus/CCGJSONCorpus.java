@@ -8,6 +8,7 @@ import tagInducer.utils.CollectionUtils;
 import tagInducer.utils.FileUtils;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +72,28 @@ public class CCGJSONCorpus extends Corpus {
 
     public List<SentenceObj> getSentences() {
         return sentences;
+    }
+
+    /**
+     * Outputs the tagged corpus
+     * @param outFile The name of the output file
+     */
+    public void writeTagged(String outFile) throws IOException {
+        BufferedWriter out = FileUtils.createOut(outFile);
+        for (int sentInd = 0; sentInd < corpusOriginalSents.length; sentInd++) {
+            SentenceObj sentence = new SentenceObj();
+            for (int wordInd = 0; wordInd < corpusOriginalSents[sentInd].length; wordInd++) {
+                sentence.addWord(
+                        corpusOriginalSents[sentInd][wordInd],    // Word
+                        "",                                       // Lemma
+                        corpusGoldTags[sentInd][wordInd],         // Gold POS Tag
+                        corpusUPos[sentInd][wordInd],             // Gold UPOS Tag
+                        corpusClusters[sentInd][wordInd] + "",    // Induced Cluster
+                        corpusCCGCats[sentInd][wordInd]);         // CCG Category
+            }
+            out.write(sentence + "\n");
+        }
+        out.close();
     }
 
     @Override

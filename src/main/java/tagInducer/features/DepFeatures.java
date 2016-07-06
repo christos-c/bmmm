@@ -47,13 +47,13 @@ public class DepFeatures implements Features {
 	/**
 	 * Reads dependency data directly from a CoNLL-style corpus
 	 */
-	public void readDepFeats() {
+	private void readDepFeats() {
 		headDepMap = new HashMap<>();
 		int[][] corpusSents = corpus.getCorpusProcessedSents();
 		int[][] corpusDeps = corpus.getCorpusDeps();
 		int[][] corpusClusters = corpus.getCorpusClusters();
-		for (int sentIndex = 0; sentIndex < corpus.getNumTypes(); sentIndex++) {
-			for (int wordIndex = 0; wordIndex < corpus.getNumTypes(); wordIndex++) {
+		for (int sentIndex = 0; sentIndex < corpusDeps.length; sentIndex++) {
+			for (int wordIndex = 0; wordIndex < corpusDeps[sentIndex].length; wordIndex++) {
 				int headIndex = corpusDeps[sentIndex][wordIndex];
 				if (headIndex == 0) {
 					addDep(corpusSents[sentIndex][wordIndex], -1);

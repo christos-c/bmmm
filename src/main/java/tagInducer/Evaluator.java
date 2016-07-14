@@ -26,11 +26,11 @@ public class Evaluator {
 	private int[] goldTags;
 	private int numGoldTags;
 	
-	int[][] coocCounts;
-	int[] clusterCounts;
-	int[] goldTagCounts;
+	private int[][] coocCounts;
+	private int[] clusterCounts;
+	private int[] goldTagCounts;
 
-	int totalWords;
+	private int totalWords;
 	private double clusterEntropy;
 	private double tagEntropy;
 	private double mutualInformation;
@@ -39,7 +39,7 @@ public class Evaluator {
 		this(corpus, "fine");
 	}
 
-	public Evaluator(Corpus corpus, String goldType) {
+	private Evaluator(Corpus corpus, String goldType) {
 		List<Integer> c = new ArrayList<>();
 		List<Integer> g = new ArrayList<>();
 
@@ -70,7 +70,7 @@ public class Evaluator {
 		setData(CollectionUtils.toArray(c), CollectionUtils.toArray(g));
 	}
 
-	public Evaluator(Corpus corpus, String goldType, String fromType) {
+	private Evaluator(Corpus corpus, String goldType, String fromType) {
 		List<Integer> c = new ArrayList<>();
 		List<Integer> g = new ArrayList<>();
 
@@ -112,7 +112,7 @@ public class Evaluator {
 		setData(CollectionUtils.toArray(c), CollectionUtils.toArray(g));
 	}
 	
-	public void setData(int[] clusters, int[] goldTags){
+	private void setData(int[] clusters, int[] goldTags){
 		this.clusters = clusters;
 		this.goldTags = goldTags;
 
@@ -158,7 +158,7 @@ public class Evaluator {
 		
 	}
 	
-	public double manyToOne(){
+	double manyToOne(){
 		Map<Integer, Integer> manyToOneMap = new HashMap<>();
 		
 		//Many-to-one mapping
@@ -186,7 +186,7 @@ public class Evaluator {
 	 * Calculates V-Measure as defined in Rosenberg & Hirschberg (2007).
 	 * @return The array of V-Measure [0], homogeneity [1], and completeness [2]
 	 */
-	public double[] VMeasure(){
+	double[] VMeasure(){
 		//H(CL): Cluster entropy
 		if (clusterEntropy == 0)
 			clusterEntropy = entropy(clusterCounts, numClusters);
@@ -221,7 +221,7 @@ public class Evaluator {
 		return vmResults;
 	}
 	
-	public double VI() {
+	double VI() {
 		//H(CL): Cluster entropy
 		if (clusterEntropy == 0)
 			clusterEntropy = entropy(clusterCounts, numClusters);
@@ -281,9 +281,9 @@ public class Evaluator {
 		if (args.length < 1 || (args.length > 1 &&
 				!(args[1].equals("-upos") || args[1].equals("-ccg") || args[1].equals("-fine")))) {
 			String usage = "Usage:\n$>tagInducer.Evaluator <corpus> [-upos|-ccg|-fine] [-fromUPOS|-fromFine]\n" +
-					"\t-upos: Compare against UPOS instead of fine-grained tags.\n" +
-					"\t-ccg: Compare against CCG-cats instead of fine-grained tags.\n" +
-					"\t-fine: Compare against fine-grained tags (only use when using -fromX).\n\n" +
+					"\t-upos: Compare against UPOS instead of fine-grained tags (6th column).\n" +
+					"\t-ccg: Compare against CCG-cats instead of fine-grained tags (7th column).\n" +
+					"\t-fine: Compare against fine-grained tags (4th column; only use when using -fromX).\n\n" +
 					"\t-fromUPOS: Compare UPOS against the first category (either -fine or -ccg).\n" +
 					"\t-fromFine: Compare fine-grained against the first category (either -upos or -ccg).";
 			System.err.println(usage);
@@ -291,7 +291,11 @@ public class Evaluator {
 		}
 		else {
 			OptionsCmdLine options = new OptionsCmdLine(new String[]{"-in", args[0]});
-			Corpus corpus = new CCGJSONCorpus(options);
+			Corpus corpus;
+			if (options.getCorpusFileName().contains("json")) {
+				corpus = new CCGJSONCorpus(options);
+			}
+			else corpus = new Corpus(options);
 			Evaluator eval;
 			if (args.length == 2) {
 				eval = new Evaluator(corpus, args[1].substring(1));

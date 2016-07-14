@@ -55,6 +55,7 @@ public class Corpus {
 	private static final int clusterIndex = 4;
 	// XXX Assume that we have a corpus with UPOS
 	private static final int uPosIndex = 5;
+	// This is overloaded to included CCG categories
 	private static final int featIndex = 6;
 	private static final int depIndex = 7;
 	private static final int depTypeIndex = 8;

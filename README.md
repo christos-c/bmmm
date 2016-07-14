@@ -1,11 +1,11 @@
 # BMMM
 The Bayesian Multinomial Mixture Model code from my 2011 paper (and thesis)
 
-#### Requirements
+### Requirements
 1. Java 1.7
 2. Maven (http://maven.apache.org/download.cgi)
 
-#### Running BMMM
+### Running BMMM
 
 After cloning the project, or downloading the zip, open the bmmm folder in command line and run:
 ```
@@ -33,3 +33,13 @@ You can also use a JSON file format with the following fields (one sentence per 
         {"word":"?","pos":"?","upos":".","cluster":"-1"}]
 }
 ```
+
+### Evaluating BMMM
+
+To evaluate the output of the `Inducer` use:
+```
+java -cp target/bmmm-2.0.11.jar:target/dependency/* tagInducer.Evaluator
+```
+
+The input can be either a CoNLL-style file, where the clusters are contained in column 5 (4th 0-index-based column). The 
+same file needs to contain either fine-grained tags (3rd 0-index column), UPOS (5th column) or CCG categories (6th column).
